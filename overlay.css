@@ -233,6 +233,9 @@
   background: #fff !important;
 }
 
+/* legibility scrim behind the status bar (color set inline per light/dark) */
+#device-frame-root .df-sb-scrim { display: none !important; }
+
 /* iOS status bar overlaid on image phones/tablets (9:41 + cellular/wifi/battery) */
 #device-frame-root .df-statusbar {
   display: none !important;

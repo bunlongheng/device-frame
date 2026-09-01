@@ -11,6 +11,7 @@ Click the toolbar icon once to frame the tab, click again to clear it. No new ta
   - **iPhone 17 Pro Max** (1470×3000 frame), **iPad Pro 13" (M4)** portrait + landscape, **MacBook**, **iMac 24"**, **Studio Display**.
   - These stay crisp because the frame is a high-res PNG downscaled to fit, and the site renders at its true logical viewport then scales to fill the screen.
 - **Drawn (vector) frames** for devices without a photoreal asset: iPhone SE, iPhone 5, Pixel 8, Galaxy S24, Galaxy Z Fold, Apple Watch Ultra.
+- **iOS status bar** on the iPhone/iPad frames (9:41, cellular, Wi-Fi, battery) with a legibility scrim behind it and a **dark/light toggle** so it stays readable over any page.
 - **Custom size** - pick "Custom size…" and type any width × height.
 - **Download PNG (with the frame baked in)** - exports the framed device as a transparent-cornered PNG. Uses `captureVisibleTab`, so it captures rendered pixels and works even on cross-origin pages, then crops to the device.
 - **Rotate** portrait / landscape (phones, tablets, fold, and custom).

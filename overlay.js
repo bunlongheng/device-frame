@@ -53,6 +53,7 @@
     download: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M4 20h16"/></svg>',
     reload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.3L3 16"/><path d="M3 21v-5h5"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+    contrast: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none"/></svg>',
   };
 
   // iOS status-bar glyphs (cellular, wifi, battery) - inherit color via currentColor.
@@ -68,7 +69,7 @@
     return n;
   };
 
-  const state = { deviceId: DEVICES[0].id, landscape: false, customW: 1280, customH: 800 };
+  const state = { deviceId: DEVICES[0].id, landscape: false, customW: 1280, customH: 800, sbLight: false };
 
   // ---- toolbar ----
   const root = el("div", "");
@@ -105,6 +106,8 @@
 
   const rotateBtn = el("button", "df-btn", ICONS.rotate);
   rotateBtn.title = "Rotate portrait / landscape";
+  const sbBtn = el("button", "df-btn", ICONS.contrast);
+  sbBtn.title = "Status bar: dark / light";
   const dlBtn = el("button", "df-btn df-dl", ICONS.download);
   dlBtn.title = "Download PNG (with frame)";
   const reloadBtn = el("button", "df-btn", ICONS.reload);
@@ -112,7 +115,7 @@
   const closeBtn = el("button", "df-btn df-close", ICONS.close);
   closeBtn.title = "Close (Esc)";
 
-  bar.append(brand, el("div", "df-sep"), select, dims, custom, el("div", "df-sep"), rotateBtn, dlBtn, reloadBtn, closeBtn);
+  bar.append(brand, el("div", "df-sep"), select, dims, custom, el("div", "df-sep"), rotateBtn, sbBtn, dlBtn, reloadBtn, closeBtn);
 
   // ---- stage + rig ----
   const stage = el("div", "df-stage");
@@ -133,6 +136,7 @@
   const crease = el("div", "df-crease");
   const frameImg = document.createElement("img"); // photoreal PNG frame (image devices)
   frameImg.className = "df-frameimg";
+  const sbScrim = el("div", "df-sb-scrim"); // legibility scrim behind the status bar
   const statusbar = el("div", "df-statusbar"); // iOS-style status bar for image phones/tablets
   const sbTime = el("span", "df-sb-time", "9:41");
   const sbInd = el("span", "df-sb-ind", SB_ICONS);
@@ -147,7 +151,7 @@
   iframe.allow = "geolocation; microphone; camera; fullscreen; clipboard-read; clipboard-write";
 
   screen.append(iframe, cam, home, crease, blocked);
-  device.append(screen, statusbar, crown, frameImg);
+  device.append(screen, sbScrim, statusbar, crown, frameImg);
   bandTop.style.order = "0"; device.style.order = "1"; lapBase.style.order = "2";
   standNeck.style.order = "3"; standFoot.style.order = "4"; bandBot.style.order = "5";
   rig.append(bandTop, device, lapBase, standNeck, standFoot, bandBot);
@@ -203,22 +207,35 @@
     // iOS status bar, positioned over the top of the screen rect (frame-native px)
     if (fr.sb) {
       const s = fr.sb;
+      const light = state.sbLight; // light = white glyphs (dark scrim); else dark glyphs (light scrim)
       statusbar.style.cssText =
         `display:flex !important;position:absolute !important;box-sizing:border-box !important;` +
         `left:${fr.ox + s.padX}px !important;top:${fr.oy + s.top}px !important;` +
         `width:${fr.sw - s.padX * 2}px !important;height:${s.h}px !important;` +
         `align-items:center !important;justify-content:space-between !important;` +
-        `z-index:5 !important;color:${s.light ? "#fff" : "#000"} !important;`;
+        `z-index:5 !important;color:${light ? "#fff" : "#000"} !important;`;
       sbTime.style.setProperty("font-size", s.font + "px", "important");
       sbInd.style.setProperty("font-size", s.glyph + "px", "important");
+      // scrim: lighten the top for dark glyphs, darken it for light glyphs
+      const scrimH = Math.round((s.top + s.h) * 1.7);
+      const grad = light
+        ? "linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0))"
+        : "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))";
+      sbScrim.style.cssText =
+        `display:block !important;position:absolute !important;` +
+        `left:${fr.ox}px !important;top:${fr.oy}px !important;` +
+        `width:${fr.sw}px !important;height:${scrimH}px !important;` +
+        `z-index:4 !important;pointer-events:none !important;background:${grad} !important;`;
     } else {
       statusbar.style.setProperty("display", "none", "important");
+      sbScrim.style.setProperty("display", "none", "important");
     }
   }
 
   function renderDrawn(d) {
     frameImg.style.setProperty("display", "none", "important");
     statusbar.style.setProperty("display", "none", "important");
+    sbScrim.style.setProperty("display", "none", "important");
     device.style.cssText = "";
     screen.style.cssText = "";
     iframe.style.cssText = "";
@@ -268,8 +285,11 @@
     else renderDrawn(d);
 
     const dim = logicalDims(d);
+    const hasSb = d.type === "image" && !!(state.landscape && d.frameL ? d.frameL.sb : d.frame && d.frame.sb);
     rotateBtn.disabled = !d.rot;
     rotateBtn.classList.toggle("df-active", !!(d.rot && state.landscape));
+    sbBtn.disabled = !hasSb;
+    sbBtn.classList.toggle("df-active", hasSb && state.sbLight);
     custom.classList.toggle("df-show", d.id === "custom");
     dims.style.display = d.id === "custom" ? "none" : "inline-flex";
     dims.textContent = `${dim.w} × ${dim.h}`;
@@ -349,6 +369,7 @@
   });
   select.addEventListener("change", () => { state.deviceId = select.value; render(true); });
   rotateBtn.addEventListener("click", () => { state.landscape = !state.landscape; render(false); });
+  sbBtn.addEventListener("click", () => { state.sbLight = !state.sbLight; render(false); });
   dlBtn.addEventListener("click", () => download());
   reloadBtn.addEventListener("click", () => render(true));
   closeBtn.addEventListener("click", () => close());
