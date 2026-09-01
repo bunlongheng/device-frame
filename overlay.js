@@ -38,11 +38,11 @@
     { id: "studiodisplay", label: "Studio Display", cat: "Apple - real frames", type: "image",
       frame: { file: "apple-display.png", fw: 5520, fh: 4316, ox: 200, oy: 200, sw: 5120, sh: 2880 }, wl: 1440 },
     // --- Drawn bezels for devices we have no PNG for ---
-    { id: "ipse",   label: "iPhone SE",           cat: "Drawn", type: "phone", w: 375, h: 667, cam: "none",  p: [64, 13, 64, 13], out: 44, scr: 6, side: true, home: true, rot: true },
-    { id: "ip5",    label: "iPhone 5",            cat: "Drawn", type: "phone", w: 320, h: 568, cam: "none",  p: [70, 12, 70, 12], out: 28, scr: 3, side: true, home: true, rot: true },
-    { id: "pixel8", label: "Pixel 8",             cat: "Drawn", type: "phone", w: 412, h: 915, cam: "punch", p: [11, 11, 11, 11], out: 38, scr: 28, side: true, rot: true },
-    { id: "galaxy", label: "Galaxy S24",          cat: "Drawn", type: "phone", w: 384, h: 854, cam: "punch", p: [10, 10, 10, 10], out: 34, scr: 26, side: true, rot: true },
-    { id: "zfold",  label: "Galaxy Z Fold (open)",cat: "Drawn", type: "fold",  w: 884, h: 800, cam: "punch", p: [10, 10, 10, 10], out: 20, scr: 8, rot: true },
+    { id: "ipse",   label: "iPhone SE",           cat: "Drawn", type: "phone", w: 375, h: 667, cam: "none",  p: [64, 13, 64, 13], out: 44, scr: 6, side: true, home: true, rot: true, sb: { top: 6, h: 26, padX: 16, font: 14, glyph: 12 } },
+    { id: "ip5",    label: "iPhone 5",            cat: "Drawn", type: "phone", w: 320, h: 568, cam: "none",  p: [70, 12, 70, 12], out: 28, scr: 3, side: true, home: true, rot: true, sb: { top: 5, h: 22, padX: 12, font: 12, glyph: 10 } },
+    { id: "pixel8", label: "Pixel 8",             cat: "Drawn", type: "phone", w: 412, h: 915, cam: "punch", p: [11, 11, 11, 11], out: 38, scr: 28, side: true, rot: true, sb: { top: 7, h: 28, padX: 20, font: 14, glyph: 12 } },
+    { id: "galaxy", label: "Galaxy S24",          cat: "Drawn", type: "phone", w: 384, h: 854, cam: "punch", p: [10, 10, 10, 10], out: 34, scr: 26, side: true, rot: true, sb: { top: 7, h: 26, padX: 18, font: 13, glyph: 11 } },
+    { id: "zfold",  label: "Galaxy Z Fold (open)",cat: "Drawn", type: "fold",  w: 884, h: 800, cam: "punch", p: [10, 10, 10, 10], out: 20, scr: 8, rot: true, sb: { top: 9, h: 32, padX: 34, font: 17, glyph: 15 } },
     { id: "watch",  label: "Apple Watch Ultra",   cat: "Drawn", type: "watch", w: 208, h: 248, cam: "none",  p: [12, 12, 12, 12], out: 58, scr: 46 },
     // --- Custom ---
     { id: "custom", label: "Custom size…", cat: "Custom", type: "frame", w: 1280, h: 800, cam: "none", p: [10, 10, 10, 10], out: 14, scr: 6, rot: true },
@@ -183,6 +183,34 @@
 
   let loadTimer = null;
 
+  // Position the status bar + scrim over a screen rect, in whatever coordinate space the
+  // caller uses (frame-native px for image devices, logical px for drawn devices).
+  function placeStatusBar(ox, oy, sw, sb) {
+    if (!sb) {
+      statusbar.style.setProperty("display", "none", "important");
+      sbScrim.style.setProperty("display", "none", "important");
+      return;
+    }
+    const light = state.sbLight;
+    statusbar.style.cssText =
+      `display:flex !important;position:absolute !important;box-sizing:border-box !important;` +
+      `left:${ox + sb.padX}px !important;top:${oy + sb.top}px !important;` +
+      `width:${sw - sb.padX * 2}px !important;height:${sb.h}px !important;` +
+      `align-items:center !important;justify-content:space-between !important;` +
+      `z-index:5 !important;color:${light ? "#fff" : "#000"} !important;`;
+    sbTime.style.setProperty("font-size", sb.font + "px", "important");
+    sbInd.style.setProperty("font-size", sb.glyph + "px", "important");
+    const scrimH = Math.round((sb.top + sb.h) * 1.7);
+    const grad = light
+      ? "linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0))"
+      : "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))";
+    sbScrim.style.cssText =
+      `display:block !important;position:absolute !important;` +
+      `left:${ox}px !important;top:${oy}px !important;` +
+      `width:${sw}px !important;height:${scrimH}px !important;` +
+      `z-index:4 !important;pointer-events:none !important;background:${grad} !important;`;
+  }
+
   function renderImage(d) {
     const land = d.rot && state.landscape && d.frameL;
     const fr = land ? d.frameL : d.frame;
@@ -204,38 +232,11 @@
     const url = FRAMES_BASE + fr.file;
     if (frameImg.getAttribute("src") !== url) frameImg.src = url;
 
-    // iOS status bar, positioned over the top of the screen rect (frame-native px)
-    if (fr.sb) {
-      const s = fr.sb;
-      const light = state.sbLight; // light = white glyphs (dark scrim); else dark glyphs (light scrim)
-      statusbar.style.cssText =
-        `display:flex !important;position:absolute !important;box-sizing:border-box !important;` +
-        `left:${fr.ox + s.padX}px !important;top:${fr.oy + s.top}px !important;` +
-        `width:${fr.sw - s.padX * 2}px !important;height:${s.h}px !important;` +
-        `align-items:center !important;justify-content:space-between !important;` +
-        `z-index:5 !important;color:${light ? "#fff" : "#000"} !important;`;
-      sbTime.style.setProperty("font-size", s.font + "px", "important");
-      sbInd.style.setProperty("font-size", s.glyph + "px", "important");
-      // scrim: lighten the top for dark glyphs, darken it for light glyphs
-      const scrimH = Math.round((s.top + s.h) * 1.7);
-      const grad = light
-        ? "linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0))"
-        : "linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0))";
-      sbScrim.style.cssText =
-        `display:block !important;position:absolute !important;` +
-        `left:${fr.ox}px !important;top:${fr.oy}px !important;` +
-        `width:${fr.sw}px !important;height:${scrimH}px !important;` +
-        `z-index:4 !important;pointer-events:none !important;background:${grad} !important;`;
-    } else {
-      statusbar.style.setProperty("display", "none", "important");
-      sbScrim.style.setProperty("display", "none", "important");
-    }
+    placeStatusBar(fr.ox, fr.oy, fr.sw, fr.sb);
   }
 
   function renderDrawn(d) {
     frameImg.style.setProperty("display", "none", "important");
-    statusbar.style.setProperty("display", "none", "important");
-    sbScrim.style.setProperty("display", "none", "important");
     device.style.cssText = "";
     screen.style.cssText = "";
     iframe.style.cssText = "";
@@ -277,6 +278,9 @@
     showEl(bandTop, isWatch);
     showEl(bandBot, isWatch);
     showEl(crown, isWatch);
+
+    // status bar for drawn phones/fold (portrait only), in logical px at the screen origin (pl,pt)
+    placeStatusBar(pl, pt, w, !land ? d.sb : null);
   }
 
   function render(reloadSrc) {
@@ -285,7 +289,10 @@
     else renderDrawn(d);
 
     const dim = logicalDims(d);
-    const hasSb = d.type === "image" && !!(state.landscape && d.frameL ? d.frameL.sb : d.frame && d.frame.sb);
+    const hasSb =
+      d.type === "image"
+        ? !!(state.landscape && d.frameL ? d.frameL.sb : d.frame && d.frame.sb)
+        : !!(d.sb && !state.landscape);
     rotateBtn.disabled = !d.rot;
     rotateBtn.classList.toggle("df-active", !!(d.rot && state.landscape));
     sbBtn.disabled = !hasSb;
