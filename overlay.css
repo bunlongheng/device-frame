@@ -1,0 +1,256 @@
+/* Device Frame overlay - namespaced under #device-frame-root, everything !important-scoped
+   to survive whatever CSS the host page throws at it. Aesthetic: a precision studio -
+   charcoal stage, soft spotlight, brushed-graphite glass toolbar, warm amber accent. */
+
+#device-frame-root,
+#device-frame-root * {
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: ui-sans-serif, -apple-system, "SF Pro Text", "Segoe UI", system-ui, sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  line-height: 1.4 !important;
+}
+
+#device-frame-root {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483647 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  color: #e9e7e2 !important;
+  --df-accent: #ff9d4d;
+  --df-accent-2: #ff7a45;
+  --df-glass: rgba(28, 27, 26, 0.72);
+  --df-line: rgba(255, 255, 255, 0.1);
+  background:
+    radial-gradient(120% 90% at 50% 8%, rgba(255, 157, 77, 0.08), transparent 55%),
+    radial-gradient(80% 60% at 50% 60%, rgba(120, 130, 150, 0.14), transparent 70%),
+    #100f0e !important;
+  animation: df-fade 0.22s ease both !important;
+}
+
+#device-frame-root.df-hidden { display: none !important; }
+
+@keyframes df-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes df-pop { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }
+
+/* faint grain so the charcoal isn't a dead flat fill */
+#device-frame-root::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  pointer-events: none !important;
+  opacity: 0.4 !important;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.045'/></svg>") !important;
+  z-index: 0 !important;
+}
+
+/* ---------- toolbar ---------- */
+#device-frame-root .df-bar {
+  position: relative !important;
+  z-index: 3 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 16px auto 0 !important;
+  padding: 8px 10px 8px 14px !important;
+  border: 1px solid var(--df-line) !important;
+  border-radius: 16px !important;
+  background: var(--df-glass) !important;
+  backdrop-filter: blur(18px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  animation: df-pop 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both !important;
+}
+
+#device-frame-root .df-brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: #fff !important;
+  padding-right: 4px !important;
+}
+#device-frame-root .df-dot {
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(150deg, var(--df-accent), var(--df-accent-2)) !important;
+  box-shadow: 0 0 12px var(--df-accent) !important;
+}
+
+#device-frame-root .df-sep {
+  width: 1px !important;
+  height: 22px !important;
+  background: var(--df-line) !important;
+}
+
+#device-frame-root select.df-select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  border: 1px solid var(--df-line) !important;
+  background: rgba(255, 255, 255, 0.04)
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23bdb9b1' stroke-width='1.8'><path d='M2 4l4 4 4-4'/></svg>")
+    no-repeat right 10px center !important;
+  color: #f4f2ee !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 8px 30px 8px 12px !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  outline: none !important;
+}
+#device-frame-root select.df-select:hover { background-color: rgba(255, 255, 255, 0.08) !important; }
+#device-frame-root select.df-select option { background: #1b1a18 !important; color: #f4f2ee !important; }
+
+#device-frame-root .df-dims {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  color: var(--df-accent) !important;
+  background: rgba(255, 157, 77, 0.1) !important;
+  border: 1px solid rgba(255, 157, 77, 0.22) !important;
+  padding: 6px 10px !important;
+  border-radius: 9px !important;
+  white-space: nowrap !important;
+}
+
+#device-frame-root .df-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  border: 1px solid var(--df-line) !important;
+  border-radius: 10px !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+  color: #e9e7e2 !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease, transform 0.1s ease, color 0.15s ease !important;
+}
+#device-frame-root .df-btn:hover { background: rgba(255, 255, 255, 0.11) !important; color: #fff !important; }
+#device-frame-root .df-btn:active { transform: scale(0.92) !important; }
+#device-frame-root .df-btn svg { width: 18px !important; height: 18px !important; display: block !important; }
+#device-frame-root .df-btn.df-close:hover { background: rgba(255, 122, 69, 0.9) !important; color: #1a0f08 !important; border-color: transparent !important; }
+#device-frame-root .df-btn.df-active { background: linear-gradient(150deg, var(--df-accent), var(--df-accent-2)) !important; color: #1a0f08 !important; border-color: transparent !important; }
+
+/* ---------- stage + device ---------- */
+#device-frame-root .df-stage {
+  position: relative !important;
+  z-index: 1 !important;
+  flex: 1 1 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  padding: 22px !important;
+}
+
+#device-frame-root .df-scaler {
+  transform-origin: center center !important;
+  transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+  animation: df-pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both !important;
+}
+
+#device-frame-root .df-device {
+  position: relative !important;
+  background: linear-gradient(155deg, #43454b 0%, #202126 42%, #303237 100%) !important;
+  box-shadow:
+    0 2px 0 rgba(255, 255, 255, 0.12) inset,
+    0 -2px 0 rgba(0, 0, 0, 0.5) inset,
+    0 50px 90px -30px rgba(0, 0, 0, 0.85),
+    0 0 0 1px rgba(0, 0, 0, 0.4) !important;
+}
+/* side buttons */
+#device-frame-root .df-device::before,
+#device-frame-root .df-device::after {
+  content: "" !important;
+  position: absolute !important;
+  background: linear-gradient(90deg, #17181b, #34363b) !important;
+  border-radius: 2px !important;
+}
+#device-frame-root .df-device[data-side="1"]::before { left: -3px !important; top: 22% !important; width: 3px !important; height: 42px !important; }
+#device-frame-root .df-device[data-side="1"]::after { right: -3px !important; top: 30% !important; width: 3px !important; height: 74px !important; }
+
+#device-frame-root .df-screen {
+  position: relative !important;
+  overflow: hidden !important;
+  background: #000 !important;
+}
+
+#device-frame-root .df-screen iframe {
+  border: 0 !important;
+  display: block !important;
+  background: #fff !important;
+}
+
+/* dynamic island / notch / punch-hole live inside the screen, above the iframe */
+#device-frame-root .df-cam {
+  position: absolute !important;
+  z-index: 4 !important;
+  top: 10px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: #05060a !important;
+  pointer-events: none !important;
+}
+#device-frame-root .df-cam[data-cam="island"] { width: 92px !important; height: 26px !important; border-radius: 16px !important; }
+#device-frame-root .df-cam[data-cam="notch"] { width: 150px !important; height: 26px !important; border-radius: 0 0 16px 16px !important; top: 0 !important; }
+#device-frame-root .df-cam[data-cam="punch"] { width: 12px !important; height: 12px !important; border-radius: 50% !important; top: 12px !important; }
+#device-frame-root .df-cam[data-cam="none"] { display: none !important; }
+
+/* home button (iPhone SE style) */
+#device-frame-root .df-home {
+  position: absolute !important;
+  bottom: -2px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  border: 2px solid rgba(255, 255, 255, 0.14) !important;
+  z-index: 4 !important;
+}
+
+/* blocked-by-CSP fallback shown over the screen */
+#device-frame-root .df-blocked {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 5 !important;
+  display: none !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  text-align: center !important;
+  padding: 24px !important;
+  background: #16151a !important;
+  color: #cfccc4 !important;
+}
+#device-frame-root .df-blocked.df-show { display: flex !important; }
+#device-frame-root .df-blocked strong { color: #fff !important; font-size: 15px !important; }
+#device-frame-root .df-blocked span { font-size: 12.5px !important; max-width: 240px !important; opacity: 0.75 !important; }
+
+#device-frame-root .df-hint {
+  position: absolute !important;
+  bottom: 14px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 2 !important;
+  font-size: 11.5px !important;
+  letter-spacing: 0.04em !important;
+  color: rgba(233, 231, 226, 0.4) !important;
+}
+#device-frame-root .df-hint kbd {
+  font-family: ui-monospace, Menlo, monospace !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid var(--df-line) !important;
+  border-radius: 5px !important;
+  padding: 1px 6px !important;
+  color: #e9e7e2 !important;
+}

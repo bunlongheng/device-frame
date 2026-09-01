@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Device Frame",
+  "version": "1.0.0",
+  "description": "Wrap the current tab in a realistic device bezel - iPhone, iPad, Pixel, Galaxy and more.",
+  "action": {
+    "default_title": "Frame this tab in a device"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "permissions": ["scripting", "activeTab"],
+  "host_permissions": ["<all_urls>"]
+}
