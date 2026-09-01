@@ -24,10 +24,13 @@
   const DEVICES = [
     // --- Apple, real photoreal frames ---
     { id: "iphone", label: "iPhone 17 Pro Max", cat: "Apple - real frames", type: "image",
-      frame: { file: "iphone.png", fw: 1470, fh: 3000, ox: 75, oy: 217, sw: 1320, sh: 2717 }, wl: 440 },
+      frame: { file: "iphone.png", fw: 1470, fh: 3000, ox: 75, oy: 217, sw: 1320, sh: 2717,
+               sb: { top: 40, h: 108, padX: 108, font: 46, glyph: 40 } }, wl: 440 },
     { id: "ipadpro", label: 'iPad Pro 13" (M4)', cat: "Apple - real frames", type: "image", rot: true,
-      frame: { file: "ipad-portrait.png", fw: 2245, fh: 2930, ox: 96, oy: 102, sw: 2048, sh: 2732 }, wl: 1024,
-      frameL: { file: "ipad-landscape.png", fw: 2930, fh: 2245, ox: 102, oy: 101, sw: 2732, sh: 2048 }, wlL: 1366 },
+      frame: { file: "ipad-portrait.png", fw: 2245, fh: 2930, ox: 96, oy: 102, sw: 2048, sh: 2732,
+               sb: { top: 20, h: 64, padX: 60, font: 30, glyph: 27 } }, wl: 1024,
+      frameL: { file: "ipad-landscape.png", fw: 2930, fh: 2245, ox: 102, oy: 101, sw: 2732, sh: 2048,
+                sb: { top: 18, h: 60, padX: 60, font: 28, glyph: 25 } }, wlL: 1366 },
     { id: "macbook", label: "MacBook", cat: "Apple - real frames", type: "image",
       frame: { file: "macbook.png", fw: 3306, fh: 1897, ox: 373, oy: 123, sw: 2560, sh: 1600 }, wl: 1280 },
     { id: "imac", label: 'iMac 24"', cat: "Apple - real frames", type: "image",
@@ -51,6 +54,12 @@
     reload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.3L3 16"/><path d="M3 21v-5h5"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
   };
+
+  // iOS status-bar glyphs (cellular, wifi, battery) - inherit color via currentColor.
+  const SB_ICONS =
+    '<svg class="df-sb-g" viewBox="0 0 20 14" fill="currentColor"><rect x="0" y="9" width="3.2" height="5" rx="1"/><rect x="5.6" y="6.4" width="3.2" height="7.6" rx="1"/><rect x="11.2" y="3.4" width="3.2" height="10.6" rx="1"/><rect x="16.8" y="0.4" width="3.2" height="13.6" rx="1"/></svg>' +
+    '<svg class="df-sb-g" viewBox="0 0 18 14" fill="currentColor"><path d="M9 3.2c3 0 5.8 1.2 7.8 3.2l-1.8 1.8C13.4 6.7 11.3 5.8 9 5.8S4.6 6.7 3 8.2L1.2 6.4C3.2 4.4 6 3.2 9 3.2z"/><path d="M9 7.7c1.7 0 3.2.7 4.3 1.7l-1.9 1.9c-.6-.6-1.5-1-2.4-1s-1.8.4-2.4 1L4.7 9.4C5.8 8.4 7.3 7.7 9 7.7z"/><circle cx="9" cy="12.4" r="1.6"/></svg>' +
+    '<svg class="df-sb-g df-sb-batt" viewBox="0 0 28 14" fill="none"><rect x="0.6" y="0.6" width="22.8" height="12.8" rx="3.6" stroke="currentColor" stroke-width="1.1" opacity="0.4"/><rect x="2.4" y="2.4" width="16.5" height="9.2" rx="1.8" fill="currentColor"/><path d="M25.2 4.6c1.1.4 1.1 4.4 0 4.8z" fill="currentColor" opacity="0.5"/></svg>';
 
   const el = (tag, cls, html) => {
     const n = document.createElement(tag);
@@ -124,6 +133,10 @@
   const crease = el("div", "df-crease");
   const frameImg = document.createElement("img"); // photoreal PNG frame (image devices)
   frameImg.className = "df-frameimg";
+  const statusbar = el("div", "df-statusbar"); // iOS-style status bar for image phones/tablets
+  const sbTime = el("span", "df-sb-time", "9:41");
+  const sbInd = el("span", "df-sb-ind", SB_ICONS);
+  statusbar.append(sbTime, sbInd);
   const blocked = el(
     "div",
     "df-blocked",
@@ -134,7 +147,7 @@
   iframe.allow = "geolocation; microphone; camera; fullscreen; clipboard-read; clipboard-write";
 
   screen.append(iframe, cam, home, crease, blocked);
-  device.append(screen, crown, frameImg);
+  device.append(screen, statusbar, crown, frameImg);
   bandTop.style.order = "0"; device.style.order = "1"; lapBase.style.order = "2";
   standNeck.style.order = "3"; standFoot.style.order = "4"; bandBot.style.order = "5";
   rig.append(bandTop, device, lapBase, standNeck, standFoot, bandBot);
@@ -186,10 +199,26 @@
     frameImg.style.setProperty("display", "block", "important");
     const url = FRAMES_BASE + fr.file;
     if (frameImg.getAttribute("src") !== url) frameImg.src = url;
+
+    // iOS status bar, positioned over the top of the screen rect (frame-native px)
+    if (fr.sb) {
+      const s = fr.sb;
+      statusbar.style.cssText =
+        `display:flex !important;position:absolute !important;box-sizing:border-box !important;` +
+        `left:${fr.ox + s.padX}px !important;top:${fr.oy + s.top}px !important;` +
+        `width:${fr.sw - s.padX * 2}px !important;height:${s.h}px !important;` +
+        `align-items:center !important;justify-content:space-between !important;` +
+        `z-index:5 !important;color:${s.light ? "#fff" : "#000"} !important;`;
+      sbTime.style.setProperty("font-size", s.font + "px", "important");
+      sbInd.style.setProperty("font-size", s.glyph + "px", "important");
+    } else {
+      statusbar.style.setProperty("display", "none", "important");
+    }
   }
 
   function renderDrawn(d) {
     frameImg.style.setProperty("display", "none", "important");
+    statusbar.style.setProperty("display", "none", "important");
     device.style.cssText = "";
     screen.style.cssText = "";
     iframe.style.cssText = "";
