@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Device Frame - preview</title>
+<link rel="stylesheet" href="../overlay.css">
+<style>html,body{margin:0;height:100%;background:#000}</style>
+</head>
+<body>
+<script>
+  // Dev harness: run the real overlay against the sample page, no extension needed.
+  // Pick the frame with ?d=<id> (defaults to iPhone 17 Pro Max) so screenshots can iterate.
+  window.__DF_SRC = "sample.html";
+</script>
+<script src="../overlay.js"></script>
+<script>
+  (function () {
+    var d = new URLSearchParams(location.search).get("d");
+    var land = new URLSearchParams(location.search).get("o") === "land";
+    if (!d) return;
+    var sel = document.querySelector("#device-frame-root .df-select");
+    if (sel) { sel.value = d; sel.dispatchEvent(new Event("change")); }
+    if (land) {
+      var rot = document.querySelector("#device-frame-root .df-btn");
+      if (rot && !rot.disabled) rot.click();
+    }
+  })();
+</script>
+</body>
+</html>

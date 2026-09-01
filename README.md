@@ -7,12 +7,22 @@ Click the toolbar icon once to frame the tab, click again to clear it. No new ta
 ## Features
 
 - **Live tab, framed** - the page you are on, shown inside a device body.
-- **8 device presets** - iPhone 15 Pro / Pro Max, iPhone 14, iPhone SE, Pixel 8, Galaxy S24, iPad Pro 11", iPad Mini. Each with the correct logical viewport (e.g. `393 × 852`) and a matching bezel (dynamic island, notch, punch-hole, or home button).
-- **Rotate** portrait / landscape.
+- **15 device frames**, each with the correct logical viewport and its own drawn bezel:
+  - **iPhone** - 17 Pro Max, 15 Pro Max, 15 Pro, 14, SE, and the classic iPhone 5 (dynamic island / notch / home button as appropriate).
+  - **iPad** - Pro 13" (M4), Pro 11", Mini.
+  - **Android** - Galaxy Z Fold (open, with hinge crease), Pixel 8, Galaxy S24.
+  - **Mac** - MacBook Pro 14" (M4) with keyboard deck + notch, Studio Display with aluminium stand.
+  - **Watch** - Apple Watch Ultra with bands + digital crown.
+- **Custom size** - pick "Custom size…" and type any width × height.
+- **Download PNG (with the frame baked in)** - exports the framed device as a transparent-cornered PNG. Uses `captureVisibleTab`, so it captures rendered pixels and works even on cross-origin pages, then crops to the device.
+- **Rotate** portrait / landscape (phones, tablets, fold, and custom).
 - **Reload** the framed page without leaving the overlay.
 - **Auto fit-to-screen** scaling - the device always fits your window and rescales on resize.
 - **Esc** to exit.
+- Every bezel is **vector-drawn** (CSS), so it stays pristine at any export size - no bitmap frames to pixelate.
 - On-demand injection (`activeTab` + `scripting`) - nothing runs on any page until you click the icon.
+
+> Desktop-class frames (MacBook, Studio Display) are larger than most screens, so on-screen they fill the window with a thin bezel. Their frame reads best in the **Download PNG** export, which crops to the device regardless of screen size.
 
 ## Install (unpacked)
 
@@ -24,9 +34,20 @@ Click the toolbar icon once to frame the tab, click again to clear it. No new ta
 
 ## How it works
 
-- `background.js` listens for the toolbar-icon click and injects `overlay.css` + `overlay.js` into the active tab on demand.
+- `background.js` listens for the toolbar-icon click and injects `overlay.css` + `overlay.js` into the active tab on demand. It also answers the overlay's `df-capture` message with a `captureVisibleTab` screenshot for the PNG export.
 - `overlay.js` builds a full-screen overlay containing a CSS-drawn device bezel and an `<iframe>` pointed at the current tab's URL, then scales the device to fit the window.
 - Re-injection (a second click) toggles the overlay off.
+
+## Develop without reloading the extension
+
+`preview/preview.html` runs the real overlay against `preview/sample.html`, so you can iterate on the frames from a plain server:
+
+```
+python3 -m http.server 8099   # from the repo root
+# open http://localhost:8099/preview/preview.html?d=ip17max&o=land
+```
+
+`?d=<device-id>` picks the frame and `?o=land` rotates it. (The PNG export is a no-op here - it needs the real extension's background worker.)
 
 ## Limitation
 

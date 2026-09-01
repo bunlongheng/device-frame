@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sample</title>
+<style>
+  *{margin:0;box-sizing:border-box;font-family:-apple-system,"SF Pro Text",system-ui,sans-serif}
+  body{background:#0b0d12;color:#fff;min-height:100vh}
+  .hero{padding:56px 26px 40px;background:radial-gradient(120% 80% at 50% 0,#20304f,transparent 60%),#0b0d12;text-align:center}
+  .badge{display:inline-block;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:#8fb3ff;border:1px solid rgba(143,179,255,.35);padding:6px 12px;border-radius:999px}
+  h1{font-size:34px;line-height:1.1;margin:18px 0 12px;font-weight:800;letter-spacing:-.02em}
+  h1 em{font-style:normal;background:linear-gradient(90deg,#ff9d4d,#ff5f8f);-webkit-background-clip:text;background-clip:text;color:transparent}
+  p.sub{color:#aab3c5;font-size:16px;max-width:520px;margin:0 auto 22px}
+  .cta{display:inline-flex;gap:10px}
+  .btn{padding:13px 22px;border-radius:12px;font-weight:700;font-size:15px;text-decoration:none}
+  .btn.primary{background:linear-gradient(90deg,#ff9d4d,#ff5f8f);color:#160a04}
+  .btn.ghost{border:1px solid rgba(255,255,255,.18);color:#fff}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;padding:26px}
+  .card{background:#141824;border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:18px}
+  .card .k{font-size:26px;font-weight:800;background:linear-gradient(90deg,#7cf0c8,#4f8cff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .card .l{color:#8a93a6;font-size:13px;margin-top:4px}
+  .bar{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:rgba(11,13,18,.8);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.06)}
+  .logo{font-weight:800;letter-spacing:-.02em}.dot{color:#ff9d4d}
+  nav{display:flex;gap:18px;color:#aab3c5;font-size:14px}
+  footer{padding:30px 26px;color:#6c7486;font-size:13px;text-align:center}
+</style>
+</head>
+<body>
+  <div class="bar"><div class="logo">Aurora<span class="dot">.</span></div><nav><span>Product</span><span>Pricing</span><span>Docs</span></nav></div>
+  <div class="hero">
+    <span class="badge">Live Preview</span>
+    <h1>See any page<br><em>on any device</em></h1>
+    <p class="sub">This is a sample page rendered inside a Device Frame bezel - drawn in vector so it stays razor-sharp at any export size.</p>
+    <div class="cta"><a class="btn primary" href="#">Get started</a><a class="btn ghost" href="#">Learn more</a></div>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="k">15</div><div class="l">Device presets</div></div>
+    <div class="card"><div class="k">4K</div><div class="l">Pristine export</div></div>
+    <div class="card"><div class="k">↻</div><div class="l">Portrait / landscape</div></div>
+    <div class="card"><div class="k">0ms</div><div class="l">On-demand inject</div></div>
+  </div>
+  <footer>Aurora Inc. - sample content for Device Frame</footer>
+</body>
+</html>

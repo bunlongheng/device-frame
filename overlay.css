@@ -1,6 +1,7 @@
-/* Device Frame overlay - namespaced under #device-frame-root, everything !important-scoped
+/* Device Frame overlay - namespaced under #device-frame-root, !important-scoped
    to survive whatever CSS the host page throws at it. Aesthetic: a precision studio -
-   charcoal stage, soft spotlight, brushed-graphite glass toolbar, warm amber accent. */
+   charcoal stage, soft spotlight, brushed-graphite glass toolbar, warm amber accent.
+   All device frames are drawn (vector/CSS) so they stay pristine at any export size. */
 
 #device-frame-root,
 #device-frame-root * {
@@ -23,14 +24,15 @@
   --df-accent-2: #ff7a45;
   --df-glass: rgba(28, 27, 26, 0.72);
   --df-line: rgba(255, 255, 255, 0.1);
+  --df-metal: linear-gradient(155deg, #4a4c52 0%, #232428 45%, #34363c 100%);
+  --df-alu: linear-gradient(160deg, #e6e7ea 0%, #b0b2b7 48%, #cfd0d4 100%);
+  --df-dark: linear-gradient(155deg, #26272b 0%, #131418 60%, #1c1d21 100%);
   background:
     radial-gradient(120% 90% at 50% 8%, rgba(255, 157, 77, 0.08), transparent 55%),
     radial-gradient(80% 60% at 50% 60%, rgba(120, 130, 150, 0.14), transparent 70%),
     #100f0e !important;
   animation: df-fade 0.22s ease both !important;
 }
-
-#device-frame-root.df-hidden { display: none !important; }
 
 @keyframes df-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes df-pop { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }
@@ -52,7 +54,7 @@
   z-index: 3 !important;
   display: flex !important;
   align-items: center !important;
-  gap: 10px !important;
+  gap: 9px !important;
   margin: 16px auto 0 !important;
   padding: 8px 10px 8px 14px !important;
   border: 1px solid var(--df-line) !important;
@@ -62,6 +64,9 @@
   -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
   animation: df-pop 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both !important;
+  max-width: calc(100vw - 32px) !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
 }
 
 #device-frame-root .df-brand {
@@ -73,7 +78,7 @@
   letter-spacing: 0.14em !important;
   text-transform: uppercase !important;
   color: #fff !important;
-  padding-right: 4px !important;
+  padding-right: 2px !important;
 }
 #device-frame-root .df-dot {
   width: 9px !important;
@@ -103,11 +108,16 @@
   border-radius: 10px !important;
   cursor: pointer !important;
   outline: none !important;
+  max-width: 190px !important;
 }
 #device-frame-root select.df-select:hover { background-color: rgba(255, 255, 255, 0.08) !important; }
-#device-frame-root select.df-select option { background: #1b1a18 !important; color: #f4f2ee !important; }
+#device-frame-root select.df-select option,
+#device-frame-root select.df-select optgroup { background: #1b1a18 !important; color: #f4f2ee !important; }
 
 #device-frame-root .df-dims {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
   font-family: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace !important;
   font-size: 12px !important;
   font-weight: 600 !important;
@@ -120,6 +130,29 @@
   white-space: nowrap !important;
 }
 
+/* custom W x H inputs */
+#device-frame-root .df-custom {
+  display: none !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+#device-frame-root .df-custom.df-show { display: inline-flex !important; }
+#device-frame-root .df-custom input {
+  width: 62px !important;
+  font-family: ui-monospace, Menlo, monospace !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #f4f2ee !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid var(--df-line) !important;
+  border-radius: 8px !important;
+  padding: 7px 8px !important;
+  outline: none !important;
+  text-align: center !important;
+}
+#device-frame-root .df-custom input:focus { border-color: var(--df-accent) !important; }
+#device-frame-root .df-custom span { color: rgba(233, 231, 226, 0.5) !important; font-size: 12px !important; }
+
 #device-frame-root .df-btn {
   display: inline-flex !important;
   align-items: center !important;
@@ -131,15 +164,17 @@
   background: rgba(255, 255, 255, 0.04) !important;
   color: #e9e7e2 !important;
   cursor: pointer !important;
-  transition: background 0.15s ease, transform 0.1s ease, color 0.15s ease !important;
+  transition: background 0.15s ease, transform 0.1s ease, color 0.15s ease, opacity 0.15s ease !important;
 }
 #device-frame-root .df-btn:hover { background: rgba(255, 255, 255, 0.11) !important; color: #fff !important; }
 #device-frame-root .df-btn:active { transform: scale(0.92) !important; }
 #device-frame-root .df-btn svg { width: 18px !important; height: 18px !important; display: block !important; }
+#device-frame-root .df-btn[disabled] { opacity: 0.28 !important; cursor: not-allowed !important; pointer-events: none !important; }
 #device-frame-root .df-btn.df-close:hover { background: rgba(255, 122, 69, 0.9) !important; color: #1a0f08 !important; border-color: transparent !important; }
 #device-frame-root .df-btn.df-active { background: linear-gradient(150deg, var(--df-accent), var(--df-accent-2)) !important; color: #1a0f08 !important; border-color: transparent !important; }
+#device-frame-root .df-btn.df-dl:hover { background: linear-gradient(150deg, var(--df-accent), var(--df-accent-2)) !important; color: #1a0f08 !important; border-color: transparent !important; }
 
-/* ---------- stage + device ---------- */
+/* ---------- stage ---------- */
 #device-frame-root .df-stage {
   position: relative !important;
   z-index: 1 !important;
@@ -157,18 +192,26 @@
   animation: df-pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both !important;
 }
 
+/* rig = device + any accessories (laptop base, monitor stand, watch bands) */
+#device-frame-root .df-rig {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+}
+
+/* ---------- the screen body ---------- */
 #device-frame-root .df-device {
   position: relative !important;
-  background: linear-gradient(155deg, #43454b 0%, #202126 42%, #303237 100%) !important;
+  background: var(--df-metal) !important;
   box-shadow:
     0 2px 0 rgba(255, 255, 255, 0.12) inset,
     0 -2px 0 rgba(0, 0, 0, 0.5) inset,
     0 50px 90px -30px rgba(0, 0, 0, 0.85),
     0 0 0 1px rgba(0, 0, 0, 0.4) !important;
 }
-/* side buttons */
-#device-frame-root .df-device::before,
-#device-frame-root .df-device::after {
+/* side buttons on phones */
+#device-frame-root .df-device[data-side="1"]::before,
+#device-frame-root .df-device[data-side="1"]::after {
   content: "" !important;
   position: absolute !important;
   background: linear-gradient(90deg, #17181b, #34363b) !important;
@@ -182,7 +225,6 @@
   overflow: hidden !important;
   background: #000 !important;
 }
-
 #device-frame-root .df-screen iframe {
   border: 0 !important;
   display: block !important;
@@ -201,10 +243,11 @@
 }
 #device-frame-root .df-cam[data-cam="island"] { width: 92px !important; height: 26px !important; border-radius: 16px !important; }
 #device-frame-root .df-cam[data-cam="notch"] { width: 150px !important; height: 26px !important; border-radius: 0 0 16px 16px !important; top: 0 !important; }
+#device-frame-root .df-cam[data-cam="lapnotch"] { width: 150px !important; height: 15px !important; border-radius: 0 0 10px 10px !important; top: 0 !important; }
 #device-frame-root .df-cam[data-cam="punch"] { width: 12px !important; height: 12px !important; border-radius: 50% !important; top: 12px !important; }
 #device-frame-root .df-cam[data-cam="none"] { display: none !important; }
 
-/* home button (iPhone SE style) */
+/* home button (iPhone SE / iPhone 5) */
 #device-frame-root .df-home {
   position: absolute !important;
   bottom: -2px !important;
@@ -215,9 +258,108 @@
   border-radius: 50% !important;
   border: 2px solid rgba(255, 255, 255, 0.14) !important;
   z-index: 4 !important;
+  display: none !important;
 }
 
-/* blocked-by-CSP fallback shown over the screen */
+/* fold crease */
+#device-frame-root .df-crease {
+  position: absolute !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  width: 3px !important;
+  transform: translateX(-50%) !important;
+  z-index: 3 !important;
+  pointer-events: none !important;
+  display: none !important;
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0.22), rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.22)) !important;
+}
+
+/* ---------- laptop (MacBook) ---------- */
+#device-frame-root .df-rig[data-type="laptop"] .df-device {
+  background: var(--df-dark) !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 40px 70px -30px rgba(0, 0, 0, 0.8) !important;
+}
+#device-frame-root .df-lap-base {
+  position: relative !important;
+  height: 22px !important;
+  background: var(--df-alu) !important;
+  border-radius: 3px 3px 13px 13px !important;
+  clip-path: polygon(0 0, 100% 0, 98.5% 100%, 1.5% 100%) !important;
+  box-shadow: 0 24px 34px -14px rgba(0, 0, 0, 0.75), inset 0 2px 0 rgba(255, 255, 255, 0.55), inset 0 -3px 6px rgba(0, 0, 0, 0.25) !important;
+  display: none !important;
+}
+/* the thumb-scoop notch on the front lip */
+#device-frame-root .df-lap-base::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 110px !important;
+  height: 9px !important;
+  background: linear-gradient(180deg, #8f9196, #b6b8bc) !important;
+  border-radius: 0 0 9px 9px !important;
+}
+
+/* ---------- display (Studio Display) ---------- */
+#device-frame-root .df-rig[data-type="display"] .df-device {
+  background: var(--df-dark) !important;
+  box-shadow:
+    0 0 0 4px #d7d8dc,
+    0 0 0 6px #9c9ea3,
+    0 0 0 7px rgba(0, 0, 0, 0.45),
+    0 50px 90px -30px rgba(0, 0, 0, 0.85) !important;
+}
+#device-frame-root .df-stand-neck {
+  width: 15% !important;
+  height: 78px !important;
+  background: linear-gradient(90deg, #9fa1a6 0%, #e9eaed 50%, #a6a8ad 100%) !important;
+  border-radius: 0 0 5px 5px !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+  display: none !important;
+}
+#device-frame-root .df-stand-foot {
+  width: 50% !important;
+  height: 16px !important;
+  background: linear-gradient(180deg, #e4e5e8, #b2b4b9) !important;
+  border-radius: 5px 5px 11px 11px !important;
+  box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.7), inset 0 2px 0 rgba(255, 255, 255, 0.6) !important;
+  display: none !important;
+}
+
+/* ---------- watch (Apple Watch Ultra) ---------- */
+#device-frame-root .df-band {
+  width: 62% !important;
+  height: 46px !important;
+  background: linear-gradient(180deg, #2a2b30, #17181c) !important;
+  display: none !important;
+}
+#device-frame-root .df-band.df-band-top { border-radius: 14px 14px 6px 6px !important; margin-bottom: -10px !important; z-index: 0 !important; }
+#device-frame-root .df-band.df-band-bot { border-radius: 6px 6px 14px 14px !important; margin-top: -10px !important; z-index: 0 !important; }
+#device-frame-root .df-rig[data-type="watch"] .df-device { z-index: 1 !important; }
+#device-frame-root .df-crown {
+  position: absolute !important;
+  right: -6px !important;
+  top: 34% !important;
+  width: 7px !important;
+  height: 26px !important;
+  background: linear-gradient(90deg, #3a3c42, #16171a) !important;
+  border-radius: 3px !important;
+  display: none !important;
+}
+#device-frame-root .df-crown::after {
+  content: "" !important;
+  position: absolute !important;
+  right: 0 !important;
+  top: 32px !important;
+  width: 6px !important;
+  height: 34px !important;
+  background: linear-gradient(90deg, #3a3c42, #16171a) !important;
+  border-radius: 3px !important;
+}
+
+/* ---------- blocked-by-CSP fallback ---------- */
 #device-frame-root .df-blocked {
   position: absolute !important;
   inset: 0 !important;
@@ -254,3 +396,7 @@
   padding: 1px 6px !important;
   color: #e9e7e2 !important;
 }
+
+/* during PNG capture: hide the chrome so only the device is in frame */
+#device-frame-root.df-capturing .df-bar,
+#device-frame-root.df-capturing .df-hint { visibility: hidden !important; }

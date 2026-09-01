@@ -11,3 +11,16 @@ chrome.action.onClicked.addListener(async (tab) => {
     console.warn("[Device Frame] cannot run on this page:", err?.message || err);
   }
 });
+
+// The overlay asks the worker to screenshot the visible tab. captureVisibleTab grabs
+// rendered pixels, so the framed (cross-origin) page comes through - a DOM/canvas read
+// never could. The content script then crops to the device bounds.
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (msg && msg.type === "df-capture" && sender.tab) {
+    chrome.tabs.captureVisibleTab(sender.tab.windowId, { format: "png" }, (dataUrl) => {
+      const err = chrome.runtime.lastError;
+      sendResponse(err ? { error: err.message } : { dataUrl });
+    });
+    return true; // keep the message channel open for the async response
+  }
+});
