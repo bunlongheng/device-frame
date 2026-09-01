@@ -49,9 +49,17 @@ python3 -m http.server 8099   # from the repo root
 
 `?d=<device-id>` picks the frame and `?o=land` rotates it. (The PNG export is a no-op here - it needs the real extension's background worker.)
 
-## Limitation
+## Framing sites that normally block embedding
 
-Some sites refuse to be embedded in an iframe (`X-Frame-Options: DENY` or a `frame-ancestors` CSP), so their frame will be blank - the overlay shows a note when that happens. Your own dev sites, `localhost`, and any site that allows embedding will render normally.
+Most sites send `X-Frame-Options` or a CSP `frame-ancestors` header that stops them being put in an `<iframe>` (e.g. `bunlongheng.com` sends `SAMEORIGIN`, GitHub sends `DENY`). Like Responsive Viewer / Responsively / Sizzy, this extension removes those response headers so the real site loads inside the device.
+
+It does this with a **declarativeNetRequest session rule** scoped tightly:
+
+- only on **`sub_frame`** requests (the device iframe), never the top-level page;
+- only on the **single tab** you framed (`condition.tabIds`);
+- only **while the overlay is open** - the rule is added on open and removed on close (and if the tab is closed).
+
+So normal browsing keeps its clickjacking protection; the headers are only relaxed for the page you are actively framing. The blocked-page note remains as a fallback for the rare site that busts framing another way.
 
 ## License
 

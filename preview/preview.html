@@ -10,8 +10,8 @@
 <body>
 <script>
   // Dev harness: run the real overlay against the sample page, no extension needed.
-  // Pick the frame with ?d=<id> (defaults to iPhone 17 Pro Max) so screenshots can iterate.
-  window.__DF_SRC = "sample.html";
+  // ?d=<id> picks the frame, ?o=land rotates, ?src=<url> frames any page instead of the sample.
+  window.__DF_SRC = new URLSearchParams(location.search).get("src") || "sample.html";
 </script>
 <script src="../overlay.js"></script>
 <script>

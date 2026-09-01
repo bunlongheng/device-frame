@@ -295,6 +295,7 @@
     window.removeEventListener("resize", onResize);
     root.remove();
     delete window.__deviceFrame;
+    try { chrome.runtime.sendMessage({ type: "df-close" }); } catch (_) {} // drop header-strip rule
   }
 
   window.__deviceFrame = { close, root };
