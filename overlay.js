@@ -8,30 +8,40 @@
     return;
   }
 
-  // Logical (CSS px) viewports, matching what responsive tools report.
-  // p = [top, right, bottom, left] bezel; out = outer radius; scr = screen radius.
+  // Where the photoreal frame PNGs live. In the real extension that's an extension URL;
+  // the preview harness overrides it with __DF_FRAMES.
+  const FRAMES_BASE =
+    window.__DF_FRAMES ||
+    (typeof chrome !== "undefined" && chrome.runtime && chrome.runtime.getURL
+      ? chrome.runtime.getURL("frames/")
+      : "frames/");
+
+  // Two kinds of device:
+  //  type:"image"  -> a real high-res PNG frame (fw x fh) with a transparent screen hole.
+  //                   The live site renders into the screen rect (ox,oy,sw,sh) and the PNG
+  //                   sits on top. `wl` is the logical viewport width the site sees.
+  //  type:phone/fold/watch/frame -> a vector (CSS) bezel, for devices we have no PNG for.
   const DEVICES = [
-    // iPhone
-    { id: "ip17max", label: "iPhone 17 Pro Max", cat: "iPhone", type: "phone", w: 440, h: 956, cam: "island", p: [14, 14, 14, 14], out: 60, scr: 48, side: true, rot: true },
-    { id: "ip15max", label: "iPhone 15 Pro Max", cat: "iPhone", type: "phone", w: 430, h: 932, cam: "island", p: [13, 13, 13, 13], out: 56, scr: 44, side: true, rot: true },
-    { id: "ip15pro", label: "iPhone 15 Pro",     cat: "iPhone", type: "phone", w: 393, h: 852, cam: "island", p: [13, 13, 13, 13], out: 54, scr: 42, side: true, rot: true },
-    { id: "ip14",    label: "iPhone 14",         cat: "iPhone", type: "phone", w: 390, h: 844, cam: "notch",  p: [13, 13, 13, 13], out: 52, scr: 40, side: true, rot: true },
-    { id: "ipse",    label: "iPhone SE",         cat: "iPhone", type: "phone", w: 375, h: 667, cam: "none",   p: [64, 13, 64, 13], out: 44, scr: 6, side: true, home: true, rot: true },
-    { id: "ip5",     label: "iPhone 5",          cat: "iPhone", type: "phone", w: 320, h: 568, cam: "none",   p: [70, 12, 70, 12], out: 28, scr: 3, side: true, home: true, rot: true },
-    // iPad
-    { id: "ipadpro13", label: 'iPad Pro 13" (M4)', cat: "iPad", type: "tablet", w: 1032, h: 1376, cam: "none", p: [18, 18, 18, 18], out: 28, scr: 14, rot: true },
-    { id: "ipadpro11", label: 'iPad Pro 11"',      cat: "iPad", type: "tablet", w: 834,  h: 1210, cam: "none", p: [17, 17, 17, 17], out: 26, scr: 12, rot: true },
-    { id: "ipadmini",  label: "iPad Mini",         cat: "iPad", type: "tablet", w: 744,  h: 1133, cam: "none", p: [16, 16, 16, 16], out: 24, scr: 11, rot: true },
-    // Android
-    { id: "zfold",  label: "Galaxy Z Fold (open)", cat: "Android", type: "fold", w: 884, h: 800, cam: "punch", p: [10, 10, 10, 10], out: 20, scr: 8, rot: true },
-    { id: "pixel8", label: "Pixel 8",              cat: "Android", type: "phone", w: 412, h: 915, cam: "punch", p: [11, 11, 11, 11], out: 38, scr: 28, side: true, rot: true },
-    { id: "galaxy", label: "Galaxy S24",           cat: "Android", type: "phone", w: 384, h: 854, cam: "punch", p: [10, 10, 10, 10], out: 34, scr: 26, side: true, rot: true },
-    // Mac
-    { id: "mbp14",         label: "MacBook Pro 14” (M4)", cat: "Mac", type: "laptop",  w: 1512, h: 982,  cam: "lapnotch", p: [10, 9, 9, 9], out: 16, scr: 6 },
-    { id: "studiodisplay", label: "Studio Display",           cat: "Mac", type: "display", w: 2560, h: 1440, cam: "none",     p: [12, 12, 12, 12], out: 12, scr: 4 },
-    // Watch
-    { id: "watch", label: "Apple Watch Ultra", cat: "Watch", type: "watch", w: 208, h: 248, cam: "none", p: [12, 12, 12, 12], out: 58, scr: 46 },
-    // Custom
+    // --- Apple, real photoreal frames ---
+    { id: "iphone", label: "iPhone 17 Pro Max", cat: "Apple - real frames", type: "image",
+      frame: { file: "iphone.png", fw: 1470, fh: 3000, ox: 75, oy: 217, sw: 1320, sh: 2717 }, wl: 440 },
+    { id: "ipadpro", label: 'iPad Pro 13" (M4)', cat: "Apple - real frames", type: "image", rot: true,
+      frame: { file: "ipad-portrait.png", fw: 2245, fh: 2930, ox: 96, oy: 102, sw: 2048, sh: 2732 }, wl: 1024,
+      frameL: { file: "ipad-landscape.png", fw: 2930, fh: 2245, ox: 102, oy: 101, sw: 2732, sh: 2048 }, wlL: 1366 },
+    { id: "macbook", label: "MacBook", cat: "Apple - real frames", type: "image",
+      frame: { file: "macbook.png", fw: 3306, fh: 1897, ox: 373, oy: 123, sw: 2560, sh: 1600 }, wl: 1280 },
+    { id: "imac", label: 'iMac 24"', cat: "Apple - real frames", type: "image",
+      frame: { file: "imac.png", fw: 4880, fh: 5720, ox: 200, oy: 1600, sw: 4480, sh: 2520 }, wl: 1280 },
+    { id: "studiodisplay", label: "Studio Display", cat: "Apple - real frames", type: "image",
+      frame: { file: "apple-display.png", fw: 5520, fh: 4316, ox: 200, oy: 200, sw: 5120, sh: 2880 }, wl: 1440 },
+    // --- Drawn bezels for devices we have no PNG for ---
+    { id: "ipse",   label: "iPhone SE",           cat: "Drawn", type: "phone", w: 375, h: 667, cam: "none",  p: [64, 13, 64, 13], out: 44, scr: 6, side: true, home: true, rot: true },
+    { id: "ip5",    label: "iPhone 5",            cat: "Drawn", type: "phone", w: 320, h: 568, cam: "none",  p: [70, 12, 70, 12], out: 28, scr: 3, side: true, home: true, rot: true },
+    { id: "pixel8", label: "Pixel 8",             cat: "Drawn", type: "phone", w: 412, h: 915, cam: "punch", p: [11, 11, 11, 11], out: 38, scr: 28, side: true, rot: true },
+    { id: "galaxy", label: "Galaxy S24",          cat: "Drawn", type: "phone", w: 384, h: 854, cam: "punch", p: [10, 10, 10, 10], out: 34, scr: 26, side: true, rot: true },
+    { id: "zfold",  label: "Galaxy Z Fold (open)",cat: "Drawn", type: "fold",  w: 884, h: 800, cam: "punch", p: [10, 10, 10, 10], out: 20, scr: 8, rot: true },
+    { id: "watch",  label: "Apple Watch Ultra",   cat: "Drawn", type: "watch", w: 208, h: 248, cam: "none",  p: [12, 12, 12, 12], out: 58, scr: 46 },
+    // --- Custom ---
     { id: "custom", label: "Custom size…", cat: "Custom", type: "frame", w: 1280, h: 800, cam: "none", p: [10, 10, 10, 10], out: 14, scr: 6, rot: true },
   ];
 
@@ -112,6 +122,8 @@
   const home = el("div", "df-home");
   const crown = el("div", "df-crown");
   const crease = el("div", "df-crease");
+  const frameImg = document.createElement("img"); // photoreal PNG frame (image devices)
+  frameImg.className = "df-frameimg";
   const blocked = el(
     "div",
     "df-blocked",
@@ -122,8 +134,7 @@
   iframe.allow = "geolocation; microphone; camera; fullscreen; clipboard-read; clipboard-write";
 
   screen.append(iframe, cam, home, crease, blocked);
-  device.append(screen, crown);
-  // flex order controls stacking (bands around watch, base under laptop, stand under display)
+  device.append(screen, crown, frameImg);
   bandTop.style.order = "0"; device.style.order = "1"; lapBase.style.order = "2";
   standNeck.style.order = "3"; standFoot.style.order = "4"; bandBot.style.order = "5";
   rig.append(bandTop, device, lapBase, standNeck, standFoot, bandBot);
@@ -141,10 +152,48 @@
     return d;
   };
 
+  // The logical viewport (what the site "sees") for either device kind.
+  function logicalDims(d) {
+    if (d.type === "image") {
+      const land = d.rot && state.landscape && d.frameL;
+      const fr = land ? d.frameL : d.frame;
+      const wl = land ? d.wlL : d.wl;
+      return { w: wl, h: Math.round((fr.sh * wl) / fr.sw) };
+    }
+    const land = d.rot && state.landscape;
+    return land ? { w: d.h, h: d.w } : { w: d.w, h: d.h };
+  }
+
   let loadTimer = null;
 
-  function render(reloadSrc) {
-    const d = current();
+  function renderImage(d) {
+    const land = d.rot && state.landscape && d.frameL;
+    const fr = land ? d.frameL : d.frame;
+    const wl = land ? d.wlL : d.wl;
+    const k = fr.sw / wl; // scale the logical iframe up to fill the screen rect
+    const hl = Math.round(fr.sh / k);
+
+    rig.setAttribute("data-type", "image");
+    // hide every drawn accessory
+    [crease, lapBase, standNeck, standFoot, bandTop, bandBot, crown, home, cam].forEach((n) =>
+      n.style.setProperty("display", "none", "important")
+    );
+    // device = the frame canvas, no CSS bezel
+    device.style.cssText = `position:relative !important;width:${fr.fw}px !important;height:${fr.fh}px !important;background:none !important;border-radius:0 !important;box-shadow:none !important;padding:0 !important;`;
+    // screen wrapper spans the whole frame; the PNG bezel (on top) masks the iframe corners
+    screen.style.cssText = `position:absolute !important;left:0 !important;top:0 !important;width:${fr.fw}px !important;height:${fr.fh}px !important;background:transparent !important;border-radius:0 !important;overflow:visible !important;`;
+    iframe.style.cssText = `position:absolute !important;left:${fr.ox}px !important;top:${fr.oy}px !important;width:${wl}px !important;height:${hl}px !important;border:0 !important;background:#fff !important;transform-origin:0 0 !important;transform:scale(${k}) !important;`;
+    frameImg.style.setProperty("display", "block", "important");
+    const url = FRAMES_BASE + fr.file;
+    if (frameImg.getAttribute("src") !== url) frameImg.src = url;
+  }
+
+  function renderDrawn(d) {
+    frameImg.style.setProperty("display", "none", "important");
+    device.style.cssText = "";
+    screen.style.cssText = "";
+    iframe.style.cssText = "";
+
     const land = d.rot && state.landscape;
     const w = land ? d.h : d.w;
     const h = land ? d.w : d.h;
@@ -152,20 +201,17 @@
 
     iframe.style.width = w + "px";
     iframe.style.height = h + "px";
-
     device.style.padding = land ? `${pl}px ${pt}px ${pl}px ${pt}px` : `${pt}px ${pr}px ${pb}px ${pl}px`;
     device.style.borderRadius = d.out + "px";
     device.setAttribute("data-side", d.side ? "1" : "0");
     screen.style.borderRadius = d.scr + "px";
     rig.setAttribute("data-type", d.type);
 
-    // camera / notch / island
     cam.setAttribute("data-cam", d.cam);
     cam.style.cssText = land && d.cam !== "none" && d.cam !== "lapnotch"
       ? "top:50% !important;left:10px !important;transform:translateY(-50%) rotate(90deg) !important;"
       : "";
 
-    // home button
     if (d.home) {
       home.style.cssText = land
         ? "display:block !important;top:50% !important;right:8px !important;left:auto !important;bottom:auto !important;transform:translateY(-50%) !important;"
@@ -174,8 +220,6 @@
       home.style.display = "none";
     }
 
-    // accessories by type. Base CSS marks these display:none !important, so the toggle
-    // must also be !important or it silently loses to the stylesheet.
     const ow = w + (land ? pt + pb : pl + pr);
     const showEl = (node, on) => node.style.setProperty("display", on ? "block" : "none", "important");
     showEl(crease, d.type === "fold");
@@ -187,20 +231,26 @@
     showEl(bandTop, isWatch);
     showEl(bandBot, isWatch);
     showEl(crown, isWatch);
+  }
 
-    // toolbar state
+  function render(reloadSrc) {
+    const d = current();
+    if (d.type === "image") renderImage(d);
+    else renderDrawn(d);
+
+    const dim = logicalDims(d);
     rotateBtn.disabled = !d.rot;
     rotateBtn.classList.toggle("df-active", !!(d.rot && state.landscape));
     custom.classList.toggle("df-show", d.id === "custom");
     dims.style.display = d.id === "custom" ? "none" : "inline-flex";
-    dims.textContent = `${w} × ${h}`;
+    dims.textContent = `${dim.w} × ${dim.h}`;
     select.value = d.id;
 
     if (reloadSrc) {
       blocked.classList.remove("df-show");
       iframe.src = window.__DF_SRC || location.href; // __DF_SRC lets preview.html swap the page
       clearTimeout(loadTimer);
-      loadTimer = setTimeout(() => blocked.classList.add("df-show"), 5000);
+      loadTimer = setTimeout(() => blocked.classList.add("df-show"), 6000);
     }
     fit();
   }
@@ -220,9 +270,7 @@
     if (capturing) return;
     capturing = true;
     const d = current();
-    const land = d.rot && state.landscape;
-    const w = land ? d.h : d.w;
-    const h = land ? d.w : d.h;
+    const dim = logicalDims(d);
     root.classList.add("df-capturing");
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
@@ -255,7 +303,7 @@
       c.toBlob((blob) => {
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `device-frame-${d.id}-${w}x${h}.png`;
+        a.download = `device-frame-${d.id}-${dim.w}x${dim.h}.png`;
         a.click();
         setTimeout(() => URL.revokeObjectURL(a.href), 2000);
         capturing = false;
@@ -270,7 +318,7 @@
     clearTimeout(loadTimer);
     blocked.classList.remove("df-show");
   });
-  select.addEventListener("change", () => { state.deviceId = select.value; render(false); });
+  select.addEventListener("change", () => { state.deviceId = select.value; render(true); });
   rotateBtn.addEventListener("click", () => { state.landscape = !state.landscape; render(false); });
   dlBtn.addEventListener("click", () => download());
   reloadBtn.addEventListener("click", () => render(true));

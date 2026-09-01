@@ -186,17 +186,19 @@
   padding: 22px !important;
 }
 
+/* fit() drives this transform via inline style - do NOT animate transform here or the
+   animation's fill state clobbers the inline scale(). Only transition it. */
 #device-frame-root .df-scaler {
   transform-origin: center center !important;
   transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
-  animation: df-pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both !important;
 }
 
-/* rig = device + any accessories (laptop base, monitor stand, watch bands) */
+/* rig = device + any accessories. The pop-in animation lives here (no JS transform). */
 #device-frame-root .df-rig {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
+  animation: df-pop 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both !important;
 }
 
 /* ---------- the screen body ---------- */
@@ -229,6 +231,20 @@
   border: 0 !important;
   display: block !important;
   background: #fff !important;
+}
+
+/* photoreal PNG frame (image devices) - sits on top, masks the iframe's corners;
+   pointer-events:none so clicks/scroll pass through to the iframe underneath */
+#device-frame-root .df-frameimg {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  z-index: 6 !important;
+  display: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
 }
 
 /* dynamic island / notch / punch-hole live inside the screen, above the iframe */

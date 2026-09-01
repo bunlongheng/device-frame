@@ -7,12 +7,10 @@ Click the toolbar icon once to frame the tab, click again to clear it. No new ta
 ## Features
 
 - **Live tab, framed** - the page you are on, shown inside a device body.
-- **15 device frames**, each with the correct logical viewport and its own drawn bezel:
-  - **iPhone** - 17 Pro Max, 15 Pro Max, 15 Pro, 14, SE, and the classic iPhone 5 (dynamic island / notch / home button as appropriate).
-  - **iPad** - Pro 13" (M4), Pro 11", Mini.
-  - **Android** - Galaxy Z Fold (open, with hinge crease), Pixel 8, Galaxy S24.
-  - **Mac** - MacBook Pro 14" (M4) with keyboard deck + notch, Studio Display with aluminium stand.
-  - **Watch** - Apple Watch Ultra with bands + digital crown.
+- **Photoreal Apple frames** - real high-resolution device PNGs (the same frames from the `frames` app), with the live site composited into the transparent screen area using exact per-frame insets:
+  - **iPhone 17 Pro Max** (1470×3000 frame), **iPad Pro 13" (M4)** portrait + landscape, **MacBook**, **iMac 24"**, **Studio Display**.
+  - These stay crisp because the frame is a high-res PNG downscaled to fit, and the site renders at its true logical viewport then scales to fill the screen.
+- **Drawn (vector) frames** for devices without a photoreal asset: iPhone SE, iPhone 5, Pixel 8, Galaxy S24, Galaxy Z Fold, Apple Watch Ultra.
 - **Custom size** - pick "Custom size…" and type any width × height.
 - **Download PNG (with the frame baked in)** - exports the framed device as a transparent-cornered PNG. Uses `captureVisibleTab`, so it captures rendered pixels and works even on cross-origin pages, then crops to the device.
 - **Rotate** portrait / landscape (phones, tablets, fold, and custom).

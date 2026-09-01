@@ -12,6 +12,7 @@
   // Dev harness: run the real overlay against the sample page, no extension needed.
   // ?d=<id> picks the frame, ?o=land rotates, ?src=<url> frames any page instead of the sample.
   window.__DF_SRC = new URLSearchParams(location.search).get("src") || "sample.html";
+  window.__DF_FRAMES = "../frames/"; // served from repo root at /frames/
 </script>
 <script src="../overlay.js"></script>
 <script>
