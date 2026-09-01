@@ -60,7 +60,7 @@
   const SB_ICONS =
     '<svg class="df-sb-g" viewBox="0 0 20 14" fill="currentColor"><rect x="0" y="9" width="3.2" height="5" rx="1"/><rect x="5.6" y="6.4" width="3.2" height="7.6" rx="1"/><rect x="11.2" y="3.4" width="3.2" height="10.6" rx="1"/><rect x="16.8" y="0.4" width="3.2" height="13.6" rx="1"/></svg>' +
     '<svg class="df-sb-g" viewBox="0 0 18 14" fill="currentColor"><path d="M9 3.2c3 0 5.8 1.2 7.8 3.2l-1.8 1.8C13.4 6.7 11.3 5.8 9 5.8S4.6 6.7 3 8.2L1.2 6.4C3.2 4.4 6 3.2 9 3.2z"/><path d="M9 7.7c1.7 0 3.2.7 4.3 1.7l-1.9 1.9c-.6-.6-1.5-1-2.4-1s-1.8.4-2.4 1L4.7 9.4C5.8 8.4 7.3 7.7 9 7.7z"/><circle cx="9" cy="12.4" r="1.6"/></svg>' +
-    '<svg class="df-sb-g df-sb-batt" viewBox="0 0 28 14" fill="none"><rect x="0.6" y="0.6" width="22.8" height="12.8" rx="3.6" stroke="currentColor" stroke-width="1.1" opacity="0.4"/><rect x="2.4" y="2.4" width="16.5" height="9.2" rx="1.8" fill="currentColor"/><path d="M25.2 4.6c1.1.4 1.1 4.4 0 4.8z" fill="currentColor" opacity="0.5"/></svg>';
+    '<svg class="df-sb-g df-sb-batt" viewBox="0 0 39 18" fill="none"><rect x="1" y="1.5" width="33" height="15" rx="4.3" stroke="currentColor" stroke-width="1.4" opacity="0.42"/><rect x="3" y="3.5" width="29" height="11" rx="2.6" fill="currentColor"/><path d="M36.4 6.2c1.2.35 1.2 5.25 0 5.6z" fill="currentColor" opacity="0.55"/><text class="df-sb-pct" x="17.5" y="13" text-anchor="middle" font-size="10.5" font-weight="700">100</text></svg>';
 
   const el = (tag, cls, html) => {
     const n = document.createElement(tag);
@@ -200,6 +200,8 @@
       `z-index:5 !important;color:${light ? "#fff" : "#000"} !important;`;
     sbTime.style.setProperty("font-size", sb.font + "px", "important");
     sbInd.style.setProperty("font-size", sb.glyph + "px", "important");
+    // battery % number sits inside the battery fill, so it needs the opposite color
+    statusbar.style.setProperty("--sb-num", light ? "#000" : "#fff");
     const scrimH = Math.round((sb.top + sb.h) * 1.7);
     const grad = light
       ? "linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0))"

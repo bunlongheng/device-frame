@@ -255,7 +255,8 @@
   line-height: 1 !important;
 }
 #device-frame-root .df-sb-ind svg.df-sb-g { display: block !important; height: 1em !important; width: auto !important; }
-#device-frame-root .df-sb-ind svg.df-sb-batt { height: 0.92em !important; }
+#device-frame-root .df-sb-ind svg.df-sb-batt { height: 0.95em !important; }
+#device-frame-root .df-sb-pct { fill: var(--sb-num, #fff) !important; font-family: -apple-system, "SF Pro Text", system-ui, sans-serif !important; }
 
 /* photoreal PNG frame (image devices) - sits on top, masks the iframe's corners;
    pointer-events:none so clicks/scroll pass through to the iframe underneath */
