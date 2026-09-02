@@ -1,0 +1,11 @@
+{
+  "name": "device-frame",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "test": "node tests/verify-frames.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
+  }
+}

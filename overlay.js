@@ -77,12 +77,12 @@
   // Safari bottom-chrome glyphs (inherit color via currentColor).
   const SF_ICONS = {
     lock: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a4.2 4.2 0 0 0-4.2 4.2V9H7a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-.8V6.2A4.2 4.2 0 0 0 12 2zm-2.4 7V6.2a2.4 2.4 0 0 1 4.8 0V9H9.6z"/></svg>',
-    reload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2 5.3"/><path d="M20 4v6h-6"/></svg>',
-    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>',
-    forward: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>',
-    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4"/><path d="M8.5 7.5 12 4l3.5 3.5"/><path d="M6 11v7a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-7"/></svg>',
-    book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.4C10.4 5 8 4.7 5.5 5.2V18c2.5-.5 4.9-.2 6.5 1.2 1.6-1.4 4-1.7 6.5-1.2V5.2C16 4.7 13.6 5 12 6.4z"/><path d="M12 6.4V19.2"/></svg>',
-    tabs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="7.5" y="7.5" width="11.5" height="11.5" rx="2.6"/><path d="M4.5 15.5V6.6A2.6 2.6 0 0 1 7.1 4H16"/></svg>',
+    reload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 0-2 5.3"/><path d="M20 4v6h-6"/></svg>',
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4l-8 8 8 8"/></svg>',
+    forward: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4l8 8-8 8"/></svg>',
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3.5"/><path d="M8 7l4-4 4 4"/><path d="M6 11.5v7A1.5 1.5 0 0 0 7.5 20h9a1.5 1.5 0 0 0 1.5-1.5v-7"/></svg>',
+    book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C10.2 4.7 7.6 4.4 5 5V18.2c2.6-.6 5.2-.3 7 1.3 1.8-1.6 4.4-1.9 7-1.3V5c-2.6-.6-5.2-.3-7 1.2z"/><path d="M12 6.2V19.5"/></svg>',
+    tabs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"><rect x="7.5" y="7.5" width="12" height="12" rx="2.8"/><path d="M4.5 16V6.5A2.5 2.5 0 0 1 7 4h9.5"/></svg>',
   };
 
   const el = (tag, cls, html) => {

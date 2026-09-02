@@ -365,7 +365,7 @@
   min-width: 0 !important;
 }
 #device-frame-root .df-sf-lock { display: inline-flex !important; flex: 0 0 auto !important; color: var(--sf-dim) !important; }
-#device-frame-root .df-sf-lock svg { width: 0.78em !important; height: 0.78em !important; display: block !important; }
+#device-frame-root .df-sf-lock svg { width: 0.84em !important; height: 0.84em !important; display: block !important; }
 #device-frame-root .df-sf-host {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
@@ -375,15 +375,15 @@
 }
 #device-frame-root .df-sf-reload { display: inline-flex !important; flex: 0 0 auto !important; color: var(--sf-icon) !important; cursor: pointer !important; pointer-events: auto !important; }
 #device-frame-root .df-sf-reload:active { opacity: 0.55 !important; }
-#device-frame-root .df-sf-reload svg { width: 1.05em !important; height: 1.05em !important; display: block !important; }
+#device-frame-root .df-sf-reload svg { width: 1.18em !important; height: 1.18em !important; display: block !important; }
 #device-frame-root .df-sf-tools {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  padding: 0 0.45em !important;
+  padding: 0 0.55em !important;
 }
 #device-frame-root .df-sf-tool { display: inline-flex !important; color: var(--sf-icon) !important; }
-#device-frame-root .df-sf-tool svg { width: 1.5em !important; height: 1.5em !important; display: block !important; }
+#device-frame-root .df-sf-tool svg { width: 1.78em !important; height: 1.78em !important; display: block !important; }
 #device-frame-root .df-sf-home {
   align-self: center !important;
   width: 36% !important;
