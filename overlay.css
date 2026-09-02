@@ -27,10 +27,7 @@
   --df-metal: linear-gradient(155deg, #4a4c52 0%, #232428 45%, #34363c 100%);
   --df-alu: linear-gradient(160deg, #e6e7ea 0%, #b0b2b7 48%, #cfd0d4 100%);
   --df-dark: linear-gradient(155deg, #26272b 0%, #131418 60%, #1c1d21 100%);
-  background:
-    radial-gradient(120% 90% at 50% 8%, rgba(255, 157, 77, 0.08), transparent 55%),
-    radial-gradient(80% 60% at 50% 60%, rgba(120, 130, 150, 0.14), transparent 70%),
-    #100f0e !important;
+  background: #282828 !important;
   animation: df-fade 0.22s ease both !important;
 }
 
@@ -48,38 +45,33 @@
   z-index: 0 !important;
 }
 
-/* ---------- toolbar ---------- */
+/* ---------- toolbar (compact HUD, docked top-right so the device owns the stage) ---------- */
 #device-frame-root .df-bar {
-  position: relative !important;
-  z-index: 3 !important;
+  position: absolute !important;
+  top: 12px !important;
+  right: 12px !important;
+  left: auto !important;
+  margin: 0 !important;
+  z-index: 4 !important;
   display: flex !important;
   align-items: center !important;
-  gap: 9px !important;
-  margin: 16px auto 0 !important;
-  padding: 8px 10px 8px 14px !important;
+  gap: 5px !important;
+  padding: 5px 6px !important;
   border: 1px solid var(--df-line) !important;
-  border-radius: 16px !important;
+  border-radius: 12px !important;
   background: var(--df-glass) !important;
   backdrop-filter: blur(18px) saturate(140%) !important;
   -webkit-backdrop-filter: blur(18px) saturate(140%) !important;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
   animation: df-pop 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both !important;
-  max-width: calc(100vw - 32px) !important;
+  max-width: calc(100vw - 24px) !important;
   flex-wrap: wrap !important;
-  justify-content: center !important;
+  justify-content: flex-end !important;
 }
 
-#device-frame-root .df-brand {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  font-size: 13px !important;
-  font-weight: 700 !important;
-  letter-spacing: 0.14em !important;
-  text-transform: uppercase !important;
-  color: #fff !important;
-  padding-right: 2px !important;
-}
+/* wordmark + dividers removed for a minimal HUD - the dropdown already names the device */
+#device-frame-root .df-brand,
+#device-frame-root .df-sep { display: none !important; }
 #device-frame-root .df-dot {
   width: 9px !important;
   height: 9px !important;
@@ -88,27 +80,21 @@
   box-shadow: 0 0 12px var(--df-accent) !important;
 }
 
-#device-frame-root .df-sep {
-  width: 1px !important;
-  height: 22px !important;
-  background: var(--df-line) !important;
-}
-
 #device-frame-root select.df-select {
   appearance: none !important;
   -webkit-appearance: none !important;
   border: 1px solid var(--df-line) !important;
   background: rgba(255, 255, 255, 0.04)
     url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23bdb9b1' stroke-width='1.8'><path d='M2 4l4 4 4-4'/></svg>")
-    no-repeat right 10px center !important;
+    no-repeat right 8px center !important;
   color: #f4f2ee !important;
-  font-size: 13px !important;
+  font-size: 12px !important;
   font-weight: 600 !important;
-  padding: 8px 30px 8px 12px !important;
-  border-radius: 10px !important;
+  padding: 6px 24px 6px 9px !important;
+  border-radius: 9px !important;
   cursor: pointer !important;
   outline: none !important;
-  max-width: 190px !important;
+  max-width: 150px !important;
 }
 #device-frame-root select.df-select:hover { background-color: rgba(255, 255, 255, 0.08) !important; }
 #device-frame-root select.df-select option,
@@ -186,12 +172,69 @@
   padding: 22px !important;
 }
 
+/* Studio backdrop - fades in only for Mac display frames (root.df-desk).
+   Pure CSS so it needs no photo: warm top light + a soft glow pooled behind the
+   device, grounded by a faint desk floor and an edge vignette. */
+#device-frame-root .df-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 0 !important;
+  opacity: 0 !important;
+  transition: opacity 0.45s ease !important;
+  pointer-events: none !important;
+  background:
+    radial-gradient(85% 55% at 50% -6%, rgba(255, 157, 77, 0.12), transparent 60%),
+    radial-gradient(60% 46% at 50% 40%, rgba(150, 170, 205, 0.13), transparent 72%),
+    linear-gradient(180deg, #17171b 0%, #131317 44%, #0d0d10 64%, #0a0a0c 100%) !important;
+}
+#device-frame-root.df-desk .df-backdrop { opacity: 1 !important; }
+/* desk floor - a soft lit surface in the lower third so the stand feels grounded */
+#device-frame-root .df-backdrop::before {
+  content: "" !important;
+  position: absolute !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  height: 34% !important;
+  background:
+    radial-gradient(120% 150% at 50% 100%, rgba(255, 255, 255, 0.07), transparent 60%),
+    linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.035) 55%, rgba(255, 255, 255, 0.06)) !important;
+}
+/* edge vignette so the device pops off the studio */
+#device-frame-root .df-backdrop::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background: radial-gradient(115% 90% at 50% 40%, transparent 42%, rgba(0, 0, 0, 0.5) 100%) !important;
+}
+
 /* fit() drives this transform via inline style - do NOT animate transform here or the
    animation's fill state clobbers the inline scale(). Only transition it. */
 #device-frame-root .df-scaler {
+  position: relative !important;
+  z-index: 1 !important;
   transform-origin: center center !important;
   transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
 }
+
+/* loading spinner - shown over the device while the framed page loads, hidden on load */
+#device-frame-root .df-spinner {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  width: 52px !important;
+  height: 52px !important;
+  margin: -26px 0 0 -26px !important;
+  border-radius: 50% !important;
+  border: 5px solid rgba(255, 255, 255, 0.16) !important;
+  border-top-color: #3b82f6 !important;
+  animation: df-spin 0.8s linear infinite !important;
+  display: none !important;
+  z-index: 2 !important;
+  pointer-events: none !important;
+}
+#device-frame-root .df-spinner.df-show { display: block !important; }
+@keyframes df-spin { to { transform: rotate(360deg); } }
 
 /* rig = device + any accessories. The pop-in animation lives here (no JS transform). */
 #device-frame-root .df-rig {
@@ -202,15 +245,39 @@
 }
 
 /* ---------- the screen body ---------- */
+/* Drawn-phone body: a black glass front (the bezel around the screen) wrapped in a bright
+   brushed-metal rim - concentric box-shadow rings fake the shiny titanium edge so the device
+   reads as a real phone against the dark stage, like the photoreal iPhone frame. */
 #device-frame-root .df-device {
   position: relative !important;
-  background: var(--df-metal) !important;
+  background: #0a0b0d !important;
   box-shadow:
-    0 2px 0 rgba(255, 255, 255, 0.12) inset,
-    0 -2px 0 rgba(0, 0, 0, 0.5) inset,
-    0 50px 90px -30px rgba(0, 0, 0, 0.85),
-    0 0 0 1px rgba(0, 0, 0, 0.4) !important;
+    inset 0 0 0 1px rgba(0, 0, 0, 0.7),
+    0 34px 70px -24px rgba(0, 0, 0, 0.92),
+    0 8px 22px -10px rgba(0, 0, 0, 0.7) !important;
 }
+/* the brushed-metal rim also catches light on the corners */
+#device-frame-root .df-device::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -9px !important;
+  border-radius: inherit !important;
+  padding: 9px !important;
+  background: linear-gradient(135deg, #f4f5f7 0%, #a9acb2 22%, #e6e8eb 44%, #9498a0 63%, #dcdee2 82%, #babdc3 100%) !important;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55) !important;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+  -webkit-mask-composite: xor !important;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0) !important;
+  mask-composite: exclude !important;
+  pointer-events: none !important;
+  z-index: 2 !important;
+}
+/* the metal rim is only for drawn phones/fold - image frames (real PNG) and the watch must not
+   get it, or it draws a bright rounded rectangle around their whole (padded) frame canvas */
+#device-frame-root .df-rig[data-type="image"] .df-device::before,
+#device-frame-root .df-rig[data-type="watch"] .df-device::before,
+#device-frame-root .df-rig[data-type="display"] .df-device::before,
+#device-frame-root .df-rig[data-type="laptop"] .df-device::before { display: none !important; }
 /* side buttons on phones */
 #device-frame-root .df-device[data-side="1"]::before,
 #device-frame-root .df-device[data-side="1"]::after {
@@ -257,6 +324,75 @@
 #device-frame-root .df-sb-ind svg.df-sb-g { display: block !important; height: 1em !important; width: auto !important; }
 #device-frame-root .df-sb-ind svg.df-sb-batt { height: 0.95em !important; }
 #device-frame-root .df-sb-pct { fill: var(--sb-num, #fff) !important; font-family: -apple-system, "SF Pro Text", system-ui, sans-serif !important; }
+
+/* ---------- Safari bottom chrome (URL pill + toolbar) ----------
+   All internal sizes are in em so the whole bar scales from the one font-size JS sets. */
+#device-frame-root .df-safari {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: center !important;
+  gap: 0.5em !important;
+  padding: 0.5em 1.35em 0.4em !important;
+  background: var(--sf-bg) !important;
+  pointer-events: none !important;
+}
+#device-frame-root .df-sf-pill {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5em !important;
+  height: 2.45em !important;
+  padding: 0 0.8em !important;
+  background: var(--sf-pill) !important;
+  border-radius: 1.25em !important;
+  color: var(--sf-text) !important;
+}
+#device-frame-root .df-sf-aa {
+  display: inline-flex !important;
+  align-items: baseline !important;
+  line-height: 1 !important;
+  font-size: 1.02em !important;
+  font-weight: 500 !important;
+  color: var(--sf-icon) !important;
+  flex: 0 0 auto !important;
+}
+#device-frame-root .df-sf-aa2 { font-size: 0.72em !important; margin-left: 0.06em !important; }
+#device-frame-root .df-sf-mid {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.3em !important;
+  min-width: 0 !important;
+}
+#device-frame-root .df-sf-lock { display: inline-flex !important; flex: 0 0 auto !important; color: var(--sf-dim) !important; }
+#device-frame-root .df-sf-lock svg { width: 0.78em !important; height: 0.78em !important; display: block !important; }
+#device-frame-root .df-sf-host {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  font-size: 1em !important;
+  color: var(--sf-text) !important;
+}
+#device-frame-root .df-sf-reload { display: inline-flex !important; flex: 0 0 auto !important; color: var(--sf-icon) !important; cursor: pointer !important; pointer-events: auto !important; }
+#device-frame-root .df-sf-reload:active { opacity: 0.55 !important; }
+#device-frame-root .df-sf-reload svg { width: 1.05em !important; height: 1.05em !important; display: block !important; }
+#device-frame-root .df-sf-tools {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0 0.45em !important;
+}
+#device-frame-root .df-sf-tool { display: inline-flex !important; color: var(--sf-icon) !important; }
+#device-frame-root .df-sf-tool svg { width: 1.5em !important; height: 1.5em !important; display: block !important; }
+#device-frame-root .df-sf-home {
+  align-self: center !important;
+  width: 36% !important;
+  height: 0.16em !important;
+  min-height: 2px !important;
+  border-radius: 1em !important;
+  background: var(--sf-home) !important;
+  margin-top: 0.15em !important;
+}
 
 /* photoreal PNG frame (image devices) - sits on top, masks the iframe's corners;
    pointer-events:none so clicks/scroll pass through to the iframe underneath */
@@ -371,14 +507,25 @@
 
 /* ---------- watch (Apple Watch Ultra) ---------- */
 #device-frame-root .df-band {
-  width: 62% !important;
-  height: 46px !important;
-  background: linear-gradient(180deg, #2a2b30, #17181c) !important;
+  width: 66% !important;
+  height: 48px !important;
+  /* Apple Watch Ultra signature orange band */
+  background: linear-gradient(180deg, #ff9d4d 0%, #ff7a1a 45%, #ef6712 100%) !important;
+  box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.35), inset 0 -2px 3px rgba(0, 0, 0, 0.25) !important;
   display: none !important;
 }
 #device-frame-root .df-band.df-band-top { border-radius: 14px 14px 6px 6px !important; margin-bottom: -10px !important; z-index: 0 !important; }
 #device-frame-root .df-band.df-band-bot { border-radius: 6px 6px 14px 14px !important; margin-top: -10px !important; z-index: 0 !important; }
-#device-frame-root .df-rig[data-type="watch"] .df-device { z-index: 1 !important; }
+/* watch case: black front bezel with a thin titanium rim (Apple Watch Ultra look) */
+#device-frame-root .df-rig[data-type="watch"] .df-device {
+  z-index: 1 !important;
+  background: #08090a !important;
+  box-shadow:
+    0 0 0 3px #34363b inset,
+    0 0 0 5px #0a0b0d inset,
+    0 22px 50px -18px rgba(0, 0, 0, 0.9),
+    0 0 0 1px #000 !important;
+}
 #device-frame-root .df-crown {
   position: absolute !important;
   right: -6px !important;
