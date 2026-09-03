@@ -4,7 +4,7 @@ A tiny Chrome (Manifest V3) extension that wraps the **current tab** in a realis
 
 Click the toolbar icon once to frame the tab, click again (or press <kbd>Esc</kbd>) to clear it. No new tab, no separate window: a full-screen studio overlay drops over the current page with the site rendered inside the device at its true logical resolution.
 
-![Device Frame - iPhone](tests/screenshots/iphone.png)
+![Device Frame - iPhone](docs/hero.png)
 
 ## Features
 
