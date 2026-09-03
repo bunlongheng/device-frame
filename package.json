@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "node tests/verify-frames.mjs"
+    "test": "node tests/verify-frames.mjs",
+    "lint": "eslint overlay.js background.js tests"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.1",
     "playwright": "^1.62.1"
   }
 }

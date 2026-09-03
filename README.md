@@ -1,27 +1,24 @@
 # Device Frame
 
-A tiny Chrome (MV3) extension that wraps the **current tab** in a realistic device bezel - iPhone, iPad, Pixel, Galaxy - so you can see any page as if it were running on a phone or tablet, right on top of the live page.
+A tiny Chrome (Manifest V3) extension that wraps the **current tab** in a realistic device bezel - iPhone, iPad, MacBook, iMac, Studio Display, Galaxy Z Fold, Apple Watch - so you can see any page as if it were running on that device, live, on top of the real page.
 
-Click the toolbar icon once to frame the tab, click again to clear it. No new tab, no separate window - a full-screen studio overlay drops over the current page with the site rendered inside the device at its real logical resolution.
+Click the toolbar icon once to frame the tab, click again (or press <kbd>Esc</kbd>) to clear it. No new tab, no separate window: a full-screen studio overlay drops over the current page with the site rendered inside the device at its true logical resolution.
+
+![Device Frame - iPhone](tests/screenshots/iphone.png)
 
 ## Features
 
-- **Live tab, framed** - the page you are on, shown inside a device body.
-- **Photoreal Apple frames** - real high-resolution device PNGs (the same frames from the `frames` app), with the live site composited into the transparent screen area using exact per-frame insets:
-  - **iPhone 17 Pro Max** (1470×3000 frame), **iPad Pro 13" (M4)** portrait + landscape, **MacBook**, **iMac 24"**, **Studio Display**.
-  - These stay crisp because the frame is a high-res PNG downscaled to fit, and the site renders at its true logical viewport then scales to fill the screen.
-- **Drawn (vector) frames** for devices without a photoreal asset: iPhone SE, iPhone 5, Pixel 8, Galaxy S24, Galaxy Z Fold, Apple Watch Ultra.
-- **iOS status bar** on the iPhone/iPad frames (9:41, cellular, Wi-Fi, battery) with a legibility scrim behind it and a **dark/light toggle** so it stays readable over any page.
+- **Live tab, framed** - the page you are on, running inside a real device body (an `<iframe>` at the device's logical viewport).
+- **Photoreal Apple frames** - high-resolution device PNGs with the live site composited into the transparent screen area using exact per-frame insets: **iPhone 17 Pro Max**, **iPad Pro 13" (M4)** (portrait + landscape), **iPad (A16)**, **MacBook**, **iMac 24"**, **Studio Display**.
+- **iOS Safari chrome** on the iPhone - black status bar (9:41, cellular, Wi-Fi, battery) and a Safari bottom bar with the framed page's real domain (`Aa`, lock, URL, reload) plus the toolbar row (back, forward, share, bookmark, tabs). The page is inset between the two so nothing overlaps.
+- **Rotate** to landscape - the iPhone synthesizes landscape by rotating the portrait frame 90 degrees and keeps the same on-screen size; the iPad ships a dedicated landscape frame.
+- **Drawn (CSS) frames** for devices with no photoreal asset: Galaxy Z Fold (open), Apple Watch Ultra (orange band), and a Custom size.
+- **Studio backdrop** behind the Mac displays; a flat neutral stage behind phones.
+- **Toolbar icon state** - the icon shows the device family normally and swaps to a red X while a tab is framed (click to close).
+- **Download PNG** (frame baked in) - exports the framed device via `captureVisibleTab`, so it captures rendered pixels and works even on cross-origin pages, then crops to the device.
+- **Loading spinner** while the framed page loads; <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>R</kbd> reloads the framed page (not the whole tab) so the overlay stays open.
 - **Custom size** - pick "Custom size…" and type any width × height.
-- **Download PNG (with the frame baked in)** - exports the framed device as a transparent-cornered PNG. Uses `captureVisibleTab`, so it captures rendered pixels and works even on cross-origin pages, then crops to the device.
-- **Rotate** portrait / landscape (phones, tablets, fold, and custom).
-- **Reload** the framed page without leaving the overlay.
-- **Auto fit-to-screen** scaling - the device always fits your window and rescales on resize.
-- **Esc** to exit.
-- Every bezel is **vector-drawn** (CSS), so it stays pristine at any export size - no bitmap frames to pixelate.
-- On-demand injection (`activeTab` + `scripting`) - nothing runs on any page until you click the icon.
-
-> Desktop-class frames (MacBook, Studio Display) are larger than most screens, so on-screen they fill the window with a thin bezel. Their frame reads best in the **Download PNG** export, which crops to the device regardless of screen size.
+- **On-demand injection** (`activeTab` + `scripting`) - nothing runs on any page until you click the icon.
 
 ## Install (unpacked)
 
@@ -33,33 +30,48 @@ Click the toolbar icon once to frame the tab, click again to clear it. No new ta
 
 ## How it works
 
-- `background.js` listens for the toolbar-icon click and injects `overlay.css` + `overlay.js` into the active tab on demand. It also answers the overlay's `df-capture` message with a `captureVisibleTab` screenshot for the PNG export.
-- `overlay.js` builds a full-screen overlay containing a CSS-drawn device bezel and an `<iframe>` pointed at the current tab's URL, then scales the device to fit the window.
-- Re-injection (a second click) toggles the overlay off.
-
-## Develop without reloading the extension
-
-`preview/preview.html` runs the real overlay against `preview/sample.html`, so you can iterate on the frames from a plain server:
-
-```
-python3 -m http.server 8099   # from the repo root
-# open http://localhost:8099/preview/preview.html?d=ip17max&o=land
-```
-
-`?d=<device-id>` picks the frame and `?o=land` rotates it. (The PNG export is a no-op here - it needs the real extension's background worker.)
+- **`background.js`** (service worker) toggles the overlay on the active tab when the toolbar icon is clicked, injecting `overlay.css` + `overlay.js` on demand. It answers the overlay's `df-capture` message with a `captureVisibleTab` screenshot for the PNG export, and drives the on/off toolbar icon.
+- **`overlay.js`** builds a full-screen overlay containing the device frame and an `<iframe>` pointed at the current tab's URL, then scales the device to fit the window. Re-injection (a second click) tears the overlay down - even an orphaned one left after an extension reload.
+- **`overlay.css`** owns all the styling (frames, Safari chrome, backdrop, spinner).
 
 ## Framing sites that normally block embedding
 
-Most sites send `X-Frame-Options` or a CSP `frame-ancestors` header that stops them being put in an `<iframe>` (e.g. `bunlongheng.com` sends `SAMEORIGIN`, GitHub sends `DENY`). Like Responsive Viewer / Responsively / Sizzy, this extension removes those response headers so the real site loads inside the device.
+Most sites send `X-Frame-Options` or a CSP `frame-ancestors` header that stops them being embedded in an `<iframe>` (GitHub sends `DENY`, many apps send `SAMEORIGIN`). Like Responsive Viewer / Responsively / Sizzy, this extension removes those response headers so the real site loads inside the device.
 
-It does this with a **declarativeNetRequest session rule** scoped tightly:
+It does this with a **`declarativeNetRequest` session rule** scoped tightly:
 
-- only on **`sub_frame`** requests (the device iframe), never the top-level page;
-- only on the **single tab** you framed (`condition.tabIds`);
-- only **while the overlay is open** - the rule is added on open and removed on close (and if the tab is closed).
+- keyed to the **framed page's domain** (`condition.requestDomains`) so it also catches responses served by a **Service Worker** (a tab-scoped rule misses those - the SW re-issues the navigation as its own fetch with no tab id);
+- only **while the overlay is open** - the rule is added on open and removed on close (and if the tab is closed or navigates);
+- a blocked-page note remains as a fallback for the rare site that busts framing another way (e.g. a Service Worker serving a cached response with the header, which the network layer cannot rewrite).
 
-So normal browsing keeps its clickjacking protection; the headers are only relaxed for the page you are actively framing. The blocked-page note remains as a fallback for the rare site that busts framing another way.
+So normal browsing keeps its clickjacking protection; the headers are only relaxed for the page you are actively framing.
+
+## Develop
+
+Run the overlay against the sample page from a plain static server - no extension reload needed:
+
+```bash
+python3 -m http.server 8099   # from the repo root
+# open http://localhost:8099/preview/preview.html?d=iphone
+# ?d=<device-id> picks the frame, &o=land rotates it, &src=<url> frames any page
+```
+
+Device ids: `iphone`, `ipada16`, `ipadpro`, `macbook`, `imac`, `studiodisplay`, `zfold`, `watch`, `custom`. The PNG export is a no-op here - it needs the real extension's background worker.
+
+## Test
+
+An automated render test loads every device frame in real headless Chromium (Playwright) and asserts the frame PNG actually loaded (bezel present), that nothing leaks a stray border, and that the device selects and sizes correctly. It writes a screenshot per device to `tests/screenshots/`.
+
+```bash
+npm install     # installs Playwright + its Chromium
+npm test        # renders + asserts all 11 device views
+npm run lint    # ESLint over the extension source
+```
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). In short: run `npm test` and `npm run lint` before opening a PR, and keep all styling in `overlay.css`.
 
 ## License
 
-MIT (c) Bunlong Heng
+[MIT](LICENSE) (c) Bunlong Heng
