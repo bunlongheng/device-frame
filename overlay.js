@@ -66,7 +66,11 @@
     reload: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.3L3 16"/><path d="M3 21v-5h5"/></svg>',
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     contrast: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none"/></svg>',
+    github: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.8.5 12.3c0 5.2 3.4 9.6 8 11.1.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7 0-.7 0-.7 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.4-5.5-6 0-1.3.5-2.4 1.3-3.2-.2-.3-.6-1.6 0-3.3 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 3 .1 3.3.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.7-5.5 6 .4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 8-5.9 8-11.1C23.5 5.8 18.3.5 12 .5z"/></svg>',
+    share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.6l7.4-4.2M8.3 13.4l7.4 4.2"/></svg>',
   };
+
+  const REPO_URL = "https://github.com/bunlongheng/device-frame";
 
   // iOS status-bar glyphs (cellular, wifi, battery) - inherit color via currentColor.
   const SB_ICONS =
@@ -136,11 +140,15 @@
   dlBtn.title = "Download PNG (with frame)";
   const reloadBtn = el("button", "df-btn", ICONS.reload);
   reloadBtn.title = "Reload frame";
+  const ghBtn = el("button", "df-btn", ICONS.github);
+  ghBtn.title = "View Device Frame on GitHub";
+  const shareBtn = el("button", "df-btn", ICONS.share);
+  shareBtn.title = "Share Device Frame";
   const closeBtn = el("button", "df-btn df-close", ICONS.close);
   closeBtn.title = "Close (Esc)";
 
   // reload lives in the Safari bar now (for iPhone); keep it in the toolbar for every other device
-  bar.append(brand, el("div", "df-sep"), select, dims, custom, el("div", "df-sep"), rotateBtn, sbBtn, dlBtn, reloadBtn, closeBtn);
+  bar.append(brand, el("div", "df-sep"), select, dims, custom, el("div", "df-sep"), rotateBtn, sbBtn, dlBtn, reloadBtn, el("div", "df-sep"), ghBtn, shareBtn, closeBtn);
 
   // ---- stage + rig ----
   const stage = el("div", "df-stage");
@@ -553,6 +561,18 @@
   dlBtn.addEventListener("click", () => download());
   reloadBtn.addEventListener("click", () => render(true));
   sfReload.addEventListener("click", () => render(true)); // Safari-bar reload (iPhone)
+  ghBtn.addEventListener("click", () => window.open(REPO_URL, "_blank", "noopener,noreferrer"));
+  shareBtn.addEventListener("click", async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Device Frame", text: "Frame any tab in a real device bezel.", url: REPO_URL });
+      } else {
+        await navigator.clipboard.writeText(REPO_URL);
+        shareBtn.classList.add("df-active");
+        setTimeout(() => shareBtn.classList.remove("df-active"), 1200); // brief "copied" flash
+      }
+    } catch (_) {}
+  });
   closeBtn.addEventListener("click", () => close());
 
   const clampCustom = () => {
@@ -563,7 +583,11 @@
   inW.addEventListener("change", clampCustom);
   inH.addEventListener("change", clampCustom);
 
+  // Both window listeners self-detach the moment THEIR overlay leaves the DOM (normal close,
+  // or an orphan hard-removed after an extension reload). Without this, an orphaned overlay's
+  // keydown/resize handlers stay bound to window forever, pinning its dead DOM in memory.
   const onKey = (e) => {
+    if (!root.isConnected) { window.removeEventListener("keydown", onKey, true); return; }
     if (e.key === "Escape") { e.stopPropagation(); close(); return; }
     // Cmd/Ctrl+R reloads the framed page (not the whole tab, which would kill the overlay)
     if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && (e.key === "r" || e.key === "R")) {
@@ -572,7 +596,10 @@
       render(true);
     }
   };
-  const onResize = () => fit();
+  const onResize = () => {
+    if (!root.isConnected) { window.removeEventListener("resize", onResize); return; }
+    fit();
+  };
   window.addEventListener("keydown", onKey, true);
   window.addEventListener("resize", onResize);
 

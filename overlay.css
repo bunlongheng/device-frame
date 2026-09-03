@@ -168,7 +168,10 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  overflow: hidden !important;
+  /* clip, NOT hidden: `hidden` is a scroll container, so clicking/focusing inside the framed
+     iframe lets Chrome scroll the stage to "reveal" it and shoves the device up. `clip` is not
+     scrollable, so focus-into-view can never move the device. */
+  overflow: clip !important;
   padding: 22px !important;
 }
 
