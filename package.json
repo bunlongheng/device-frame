@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "python3 -m http.server 3212 --bind 127.0.0.1",
+    "dev": "python3 -m http.server 3212 --bind 0.0.0.0",
     "test": "node tests/verify-frames.mjs",
     "lint": "eslint overlay.js background.js copy.js tests"
   },
