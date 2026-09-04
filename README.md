@@ -6,6 +6,8 @@ Click the toolbar icon once to frame the tab, click again (or press <kbd>Esc</kb
 
 ![Emulator - iPhone](docs/hero.png)
 
+![Emulator - iPhone in landscape](docs/hero-landscape.png)
+
 ## Features
 
 - **Live tab, framed** - the page you are on, running inside a real device body (an `<iframe>` at the device's logical viewport).
