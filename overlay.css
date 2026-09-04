@@ -29,7 +29,14 @@
   --df-dark: linear-gradient(155deg, #26272b 0%, #131418 60%, #1c1d21 100%);
   background: #282828 !important;
   animation: df-fade 0.22s ease both !important;
+  /* the overlay is chrome, not content: a drag across the stage must never select it (the
+     framed iframe would light up blue as one selected block). Text inside the frame is the
+     frame's own business and stays selectable. */
+  -webkit-user-select: none !important;
+  user-select: none !important;
 }
+#device-frame-root .df-custom input,
+#device-frame-root .df-toast a { -webkit-user-select: text !important; user-select: text !important; }
 
 @keyframes df-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes df-pop { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }
