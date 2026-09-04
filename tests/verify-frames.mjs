@@ -49,9 +49,17 @@ try {
         const device = root.querySelector(".df-device");
         const img = root.querySelector(".df-frameimg");
         const r = device.getBoundingClientRect();
+        const st = root.querySelector(".df-stage").getBoundingClientRect();
         return {
           deviceW: Math.round(r.width),
           deviceH: Math.round(r.height),
+          deviceTop: Math.round(r.top),
+          deviceBottom: Math.round(r.bottom),
+          deviceCx: Math.round(r.left + r.width / 2),
+          deviceCy: Math.round(r.top + r.height / 2),
+          stageH: Math.round(st.height),
+          viewH: window.innerHeight,
+          viewW: window.innerWidth,
           imgDisplay: getComputedStyle(img).display,
           imgComplete: img.complete,
           imgNaturalW: img.naturalWidth,
@@ -64,6 +72,14 @@ try {
 
       if (!(info.deviceW > 0 && info.deviceH > 0)) errs.push("device has zero size");
       if (info.selValue !== d.id) errs.push(`wrong device selected (${info.selValue})`);
+      // the stage must never grow past the viewport (flex min-height:auto + the unscaled 3000px
+      // rig did exactly that and shoved the device off the bottom of the screen)
+      if (info.stageH > info.viewH) errs.push(`stage overflows viewport (${info.stageH}px > ${info.viewH}px)`);
+      // the device must be fully on screen and centered in the viewport
+      if (info.deviceTop < 0 || info.deviceBottom > info.viewH)
+        errs.push(`device off screen (top ${info.deviceTop}, bottom ${info.deviceBottom}, view ${info.viewH})`);
+      if (Math.abs(info.deviceCx - info.viewW / 2) > 4 || Math.abs(info.deviceCy - info.viewH / 2) > 4)
+        errs.push(`device not centered (center ${info.deviceCx},${info.deviceCy} vs ${info.viewW / 2},${info.viewH / 2})`);
 
       if (d.type === "image") {
         // the bezel IS the frame PNG - prove it loaded and is visible

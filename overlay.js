@@ -37,7 +37,7 @@
   const DEVICES = [
     // --- Apple, real photoreal frames ---
     { id: "iphone", label: "iPhone 17 Pro Max", cat: "Apple - real frames", type: "image", rot: true,
-      frame: { file: "iphone.png", fw: 1470, fh: 3000, ox: 75, oy: 217, sw: 1320, sh: 2717, sr: 150,
+      frame: { file: "iphone.png", fw: 1470, fh: 3000, ox: 75, oy: 217, ot: 67, sw: 1320, sh: 2717, sr: 150,
                sb: { top: 40, h: 108, padX: 108, font: 46, glyph: 40 },
                sf: { h: 300, u: 42 } }, wl: 440 },
     { id: "ipadpro", label: 'iPad Pro 13" (M4)', cat: "Apple - real frames", type: "image", rot: true,
@@ -324,8 +324,13 @@
     // Make the iframe a scrollbar-width wider than the screen so the desktop scrollbar lands
     // just past the clipped edge and stays hidden - real devices use space-less overlay bars.
     const SBW = 17;
-    screen.style.cssText = `position:absolute !important;left:${fr.ox}px !important;top:${fr.oy}px !important;width:${fr.sw}px !important;height:${fr.sh}px !important;background:${bandColor} !important;border-radius:0 0 ${r}px ${r}px !important;overflow:hidden !important;`;
-    iframe.style.cssText = `position:absolute !important;left:0 !important;top:${zone}px !important;width:${wl + SBW}px !important;height:${hl}px !important;border:0 !important;background:#fff !important;transform-origin:0 0 !important;transform:scale(${k}) !important;`;
+    // ot = top of the PNG's real screen opening when it sits above oy (iPhone: oy is 150px below
+    // the bezel so the status bar clears the island). The screen must cover that cap too, or the
+    // island floats on the stage charcoal instead of on the screen. Cap > 0 rounds the top corners.
+    const cap = fr.ot != null ? fr.oy - fr.ot : 0;
+    const radius = cap ? `${r}px` : `0 0 ${r}px ${r}px`;
+    screen.style.cssText = `position:absolute !important;left:${fr.ox}px !important;top:${fr.oy - cap}px !important;width:${fr.sw}px !important;height:${fr.sh + cap}px !important;background:${bandColor} !important;border-radius:${radius} !important;overflow:hidden !important;`;
+    iframe.style.cssText = `position:absolute !important;left:0 !important;top:${zone + cap}px !important;width:${wl + SBW}px !important;height:${hl}px !important;border:0 !important;background:#fff !important;transform-origin:0 0 !important;transform:scale(${k}) !important;`;
     frameImg.style.cssText = ""; // clear any landscape-rotation transform
     frameImg.style.setProperty("display", "block", "important");
     const url = FRAMES_BASE + fr.file;
@@ -371,7 +376,11 @@
     const sLeft = fr.fh - fr.oy - fr.sh;
     const sTop = fr.ox;
     const r = fr.sr || 0;
-    screen.style.cssText = `position:absolute !important;left:${sLeft}px !important;top:${sTop}px !important;width:${fr.sh}px !important;height:${fr.sw}px !important;background:#000 !important;border-radius:${r}px !important;overflow:hidden !important;`;
+    // the cap above oy (island zone) lands on the right after rotation: cover it with the band
+    // color so the page runs to a black/white strip holding the island, corners rounded at the bezel
+    const cap = fr.ot != null ? fr.oy - fr.ot : 0;
+    const bandColor = state.sbLight ? "#0b0b0c" : "#ffffff";
+    screen.style.cssText = `position:absolute !important;left:${sLeft}px !important;top:${sTop}px !important;width:${fr.sh + cap}px !important;height:${fr.sw}px !important;background:${bandColor} !important;border-radius:${r}px !important;overflow:hidden !important;`;
     iframe.style.cssText = `position:absolute !important;left:0 !important;top:0 !important;width:${wl + SBW}px !important;height:${hl}px !important;border:0 !important;background:#fff !important;transform-origin:0 0 !important;transform:scale(${k}) !important;`;
 
     // the portrait PNG rotated 90deg CW, translated back into the device box
@@ -484,17 +493,14 @@
   }
 
   function fit() {
-    const d = current();
     const rw = rig.offsetWidth || 1;
     const rh = rig.offsetHeight || 1;
     const availW = stage.clientWidth - 24;
     const availH = stage.clientHeight - 24;
-    // For rotatable devices, scale off the LONG side against the smaller available dim so the
-    // device stays the exact same on-screen size when you rotate (portrait <-> landscape).
-    // Non-rotatable devices just fit their box normally.
-    const base = d.rot
-      ? Math.min(availW, availH) / Math.max(rw, rh)
-      : Math.min(availW / rw, availH / rh);
+    // Fit the rig's CURRENT box (portrait or landscape) to the stage. Scaling rotatable devices
+    // off their long side kept the size constant across rotation but left landscape tiny
+    // (~38% of the stage), so each orientation now fills the stage on its own.
+    const base = Math.min(availW / rw, availH / rh);
     // 0.8 = sit the device at 80% so it's smaller with breathing room, centered in the stage
     const scale = Math.min(base, 1) * 0.8;
     scaler.style.transform = `scale(${scale})`;

@@ -11,7 +11,7 @@ Click the toolbar icon once to frame the tab, click again (or press <kbd>Esc</kb
 - **Live tab, framed** - the page you are on, running inside a real device body (an `<iframe>` at the device's logical viewport).
 - **Photoreal Apple frames** - high-resolution device PNGs with the live site composited into the transparent screen area using exact per-frame insets: **iPhone 17 Pro Max**, **iPad Pro 13" (M4)** (portrait + landscape), **iPad (A16)**, **MacBook**, **iMac 24"**, **Studio Display**.
 - **iOS Safari chrome** on the iPhone - black status bar (9:41, cellular, Wi-Fi, battery) and a Safari bottom bar with the framed page's real domain (`Aa`, lock, URL, reload) plus the toolbar row (back, forward, share, bookmark, tabs). The page is inset between the two so nothing overlaps.
-- **Rotate** to landscape - the iPhone synthesizes landscape by rotating the portrait frame 90 degrees and keeps the same on-screen size; the iPad ships a dedicated landscape frame.
+- **Rotate** to landscape - the iPhone synthesizes landscape by rotating the portrait frame 90 degrees; each orientation fills the stage; the iPad ships a dedicated landscape frame.
 - **Drawn (CSS) frames** for devices with no photoreal asset: Galaxy Z Fold (open), Apple Watch Ultra (orange band), and a Custom size.
 - **Studio backdrop** behind the Mac displays; a flat neutral stage behind phones.
 - **Toolbar icon state** - the icon shows the device family normally and swaps to a red X while a tab is framed (click to close).

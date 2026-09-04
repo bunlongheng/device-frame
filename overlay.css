@@ -172,6 +172,11 @@
      iframe lets Chrome scroll the stage to "reveal" it and shoves the device up. `clip` is not
      scrollable, so focus-into-view can never move the device. */
   overflow: clip !important;
+  /* min-height:0 is REQUIRED with clip: clip is not a scroll container, so the flex item's
+     automatic minimum size becomes content-based and the stage grows to the unscaled rig
+     (3000px for iPhone), overflowing the viewport and pushing the device off the bottom. */
+  min-height: 0 !important;
+  min-width: 0 !important;
   padding: 22px !important;
 }
 
