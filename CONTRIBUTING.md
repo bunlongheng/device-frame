@@ -1,4 +1,4 @@
-# Contributing to Device Frame
+# Contributing to Emulator
 
 Thanks for helping out. This is a small, dependency-light Chrome MV3 extension - keep it that way.
 
@@ -23,7 +23,7 @@ python3 -m http.server 8099
 
 ```bash
 npm run lint    # ESLint must pass
-npm test        # renders every device frame in headless Chromium and asserts the bezel loaded
+npm test        # renders every device bezel in headless Chromium and asserts the bezel loaded
 ```
 
 Both run in CI on every push and PR (`.github/workflows/ci.yml`); a PR that fails either will not be merged.

@@ -41,11 +41,11 @@ try {
     const errs = [];
     try {
       await page.goto(url, { waitUntil: "load" });
-      await page.waitForSelector("#device-frame-root .df-device", { timeout: 6000 });
+      await page.waitForSelector("#emulator-root .df-device", { timeout: 6000 });
       await page.waitForTimeout(900); // let render + PNG load settle
 
       const info = await page.evaluate(() => {
-        const root = document.getElementById("device-frame-root");
+        const root = document.getElementById("emulator-root");
         const device = root.querySelector(".df-device");
         const img = root.querySelector(".df-frameimg");
         const r = device.getBoundingClientRect();
@@ -90,7 +90,7 @@ try {
       } else {
         // drawn device: a CSS bezel must exist (rim ::before or a non-transparent body)
         const hasBezel = await page.evaluate(() => {
-          const dev = document.querySelector("#device-frame-root .df-device");
+          const dev = document.querySelector("#emulator-root .df-device");
           const bg = getComputedStyle(dev).backgroundColor;
           const rim = getComputedStyle(dev, "::before").display !== "none";
           const opaque = bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent";
@@ -111,7 +111,7 @@ try {
   server.kill();
 }
 
-console.log("\n=== Device Frame render test ===");
+console.log("\n=== Emulator render test ===");
 let allPass = true;
 for (const r of results) {
   console.log((r.pass ? "PASS " : "FAIL ") + r.name.padEnd(16) + (r.errs.length ? " -> " + r.errs.join("; ") : ""));

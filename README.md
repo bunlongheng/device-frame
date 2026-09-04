@@ -1,10 +1,10 @@
-# Device Frame
+# Emulator
 
 A tiny Chrome (Manifest V3) extension that wraps the **current tab** in a realistic device bezel - iPhone, iPad, MacBook, iMac, Studio Display, Galaxy Z Fold, Apple Watch - so you can see any page as if it were running on that device, live, on top of the real page.
 
 Click the toolbar icon once to frame the tab, click again (or press <kbd>Esc</kbd>) to clear it. No new tab, no separate window: a full-screen studio overlay drops over the current page with the site rendered inside the device at its true logical resolution.
 
-![Device Frame - iPhone](docs/hero.png)
+![Emulator - iPhone](docs/hero.png)
 
 ## Features
 
@@ -28,13 +28,13 @@ Click the toolbar icon once to frame the tab, click again (or press <kbd>Esc</kb
 1. Open `chrome://extensions`.
 2. Toggle **Developer mode** on (top right).
 3. Click **Load unpacked** and select this folder.
-4. Pin **Device Frame** to the toolbar.
+4. Pin **Emulator** to the toolbar.
 5. Open any page and click the icon.
 
 ## How it works
 
 - **`background.js`** (service worker) toggles the overlay on the active tab when the toolbar icon is clicked, injecting `overlay.css` + `overlay.js` on demand. It answers the overlay's `df-capture` message with a `captureVisibleTab` screenshot for the exports, relays `df-share` uploads to bunlongheng.com from the extension origin, and drives the on/off toolbar icon.
-- **`overlay.js`** builds a full-screen overlay containing the device frame and an `<iframe>` pointed at the current tab's URL, then scales the device to fit the window. Re-injection (a second click) tears the overlay down - even an orphaned one left after an extension reload.
+- **`overlay.js`** builds a full-screen overlay containing the device bezel and an `<iframe>` pointed at the current tab's URL, then scales the device to fit the window. Re-injection (a second click) tears the overlay down - even an orphaned one left after an extension reload.
 - **`overlay.css`** owns all the styling (frames, Safari chrome, backdrop, spinner).
 
 ## Framing sites that normally block embedding
@@ -63,7 +63,7 @@ Device ids: `iphone`, `ipada16`, `ipadpro`, `macbook`, `imac`, `studiodisplay`, 
 
 ## Test
 
-An automated render test loads every device frame in real headless Chromium (Playwright) and asserts the frame PNG actually loaded (bezel present), that nothing leaks a stray border, and that the device selects and sizes correctly. It writes a screenshot per device to `tests/screenshots/`.
+An automated render test loads every device bezel in real headless Chromium (Playwright) and asserts the frame PNG actually loaded (bezel present), that nothing leaks a stray border, and that the device selects and sizes correctly. It writes a screenshot per device to `tests/screenshots/`.
 
 ```bash
 npm install     # installs Playwright + its Chromium

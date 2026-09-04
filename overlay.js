@@ -1,23 +1,23 @@
-// Device Frame overlay controller. Injected on toolbar-icon click.
+// Emulator overlay controller. Injected on toolbar-icon click.
 // Re-injection toggles it off, so one click frames, next click clears.
 (() => {
   "use strict";
 
   // Re-injection means "close the frame". Always tear down any existing overlay - even an
-  // ORPHAN left after an extension reload, where window.__deviceFrame may be gone but the DOM
+  // ORPHAN left after an extension reload, where window.__emulator may be gone but the DOM
   // node remains. Without this, a reload leaves a frame that the X/icon can no longer close.
-  const _existing = document.getElementById("device-frame-root");
+  const _existing = document.getElementById("emulator-root");
   if (_existing) {
     try {
-      if (window.__deviceFrame && typeof window.__deviceFrame.close === "function") {
-        window.__deviceFrame.close();
+      if (window.__emulator && typeof window.__emulator.close === "function") {
+        window.__emulator.close();
       } else {
         _existing.remove();
       }
     } catch (_) {
       _existing.remove();
     }
-    try { delete window.__deviceFrame; } catch (_) {}
+    try { delete window.__emulator; } catch (_) {}
     return;
   }
 
@@ -71,7 +71,7 @@
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.6l7.4-4.2M8.3 13.4l7.4 4.2"/></svg>',
   };
 
-  const REPO_URL = "https://github.com/bunlongheng/device-frame";
+  const REPO_URL = "https://github.com/bunlongheng/emulator";
 
   // iOS status-bar glyphs (cellular, wifi, battery) - inherit color via currentColor.
   const SB_ICONS =
@@ -102,10 +102,10 @@
 
   // ---- toolbar ----
   const root = el("div", "");
-  root.id = "device-frame-root";
+  root.id = "emulator-root";
 
   const bar = el("div", "df-bar");
-  const brand = el("div", "df-brand", '<span class="df-dot"></span>DEVICE FRAME');
+  const brand = el("div", "df-brand", '<span class="df-dot"></span>EMULATOR');
 
   const select = el("select", "df-select");
   const groups = {};
@@ -144,7 +144,7 @@
   const reloadBtn = el("button", "df-btn", ICONS.reload);
   reloadBtn.title = "Reload frame";
   const ghBtn = el("button", "df-btn", ICONS.github);
-  ghBtn.title = "View Device Frame on GitHub";
+  ghBtn.title = "View Emulator on GitHub";
   const shareBtn = el("button", "df-btn", ICONS.share);
   shareBtn.title = "Share - upload and get a public link";
   const closeBtn = el("button", "df-btn df-close", ICONS.close);
@@ -598,7 +598,7 @@
     if (resp && resp.dataUrl) img = await loadImage(resp.dataUrl).catch(() => null);
     capturing = false;
     if (!img) {
-      console.warn("[Device Frame] capture failed:", resp && resp.error);
+      console.warn("[Emulator] capture failed:", resp && resp.error);
       toast("Capture failed");
       return null;
     }
@@ -661,7 +661,7 @@
     return out;
   }
 
-  const fileName = (cap, ext) => `device-frame-${cap.d.id}-${cap.dim.w}x${cap.dim.h}.${ext}`;
+  const fileName = (cap, ext) => `emulator-${cap.d.id}-${cap.dim.w}x${cap.dim.h}.${ext}`;
   function save(blob, name) {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -695,7 +695,7 @@
       let resp = null;
       try { resp = await chrome.runtime.sendMessage({ type: "df-clipboard", dataUrl: png.toDataURL("image/png") }); } catch (_) {}
       if (!resp || !resp.ok) {
-        console.warn("[Device Frame] copy failed:", first && first.message, resp && resp.error);
+        console.warn("[Emulator] copy failed:", first && first.message, resp && resp.error);
         toast("Copy failed - " + ((resp && resp.error) || (first && first.message) || "unknown error"), 4000);
         return;
       }
@@ -818,11 +818,11 @@
     window.removeEventListener("resize", onResize);
     document.removeEventListener("click", onDocClick, true);
     root.remove();
-    delete window.__deviceFrame;
+    delete window.__emulator;
     try { chrome.runtime.sendMessage({ type: "df-close" }); } catch (_) {} // drop header-strip rule
   }
 
-  window.__deviceFrame = { close, root };
+  window.__emulator = { close, root };
   try { chrome.runtime.sendMessage({ type: "df-open" }); } catch (_) {} // green "ON" badge
   render(true);
 })();

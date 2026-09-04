@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Device Frame",
+  "name": "Emulator",
   "version": "1.1.1",
   "description": "Wrap the current tab in a realistic device bezel - iPhone, iPad, Pixel, Galaxy and more.",
   "action": {

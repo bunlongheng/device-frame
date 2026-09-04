@@ -1,10 +1,10 @@
-/* Device Frame overlay - namespaced under #device-frame-root, !important-scoped
+/* Emulator overlay - namespaced under #emulator-root, !important-scoped
    to survive whatever CSS the host page throws at it. Aesthetic: a precision studio -
    charcoal stage, soft spotlight, brushed-graphite glass toolbar, warm amber accent.
-   All device frames are drawn (vector/CSS) so they stay pristine at any export size. */
+   All device bezels are drawn (vector/CSS) so they stay pristine at any export size. */
 
-#device-frame-root,
-#device-frame-root * {
+#emulator-root,
+#emulator-root * {
   box-sizing: border-box !important;
   margin: 0 !important;
   padding: 0 !important;
@@ -13,7 +13,7 @@
   line-height: 1.4 !important;
 }
 
-#device-frame-root {
+#emulator-root {
   position: fixed !important;
   inset: 0 !important;
   z-index: 2147483647 !important;
@@ -35,14 +35,14 @@
   -webkit-user-select: none !important;
   user-select: none !important;
 }
-#device-frame-root .df-custom input,
-#device-frame-root .df-toast a { -webkit-user-select: text !important; user-select: text !important; }
+#emulator-root .df-custom input,
+#emulator-root .df-toast a { -webkit-user-select: text !important; user-select: text !important; }
 
 @keyframes df-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes df-pop { from { opacity: 0; transform: translateY(8px) scale(0.985); } to { opacity: 1; transform: none; } }
 
 /* faint grain so the charcoal isn't a dead flat fill */
-#device-frame-root::after {
+#emulator-root::after {
   content: "" !important;
   position: absolute !important;
   inset: 0 !important;
@@ -53,7 +53,7 @@
 }
 
 /* ---------- toolbar (compact HUD, docked top-right so the device owns the stage) ---------- */
-#device-frame-root .df-bar {
+#emulator-root .df-bar {
   position: absolute !important;
   top: 12px !important;
   right: 12px !important;
@@ -77,9 +77,9 @@
 }
 
 /* wordmark + dividers removed for a minimal HUD - the dropdown already names the device */
-#device-frame-root .df-brand,
-#device-frame-root .df-sep { display: none !important; }
-#device-frame-root .df-dot {
+#emulator-root .df-brand,
+#emulator-root .df-sep { display: none !important; }
+#emulator-root .df-dot {
   width: 9px !important;
   height: 9px !important;
   border-radius: 50% !important;
@@ -87,7 +87,7 @@
   box-shadow: 0 0 12px var(--df-accent) !important;
 }
 
-#device-frame-root select.df-select {
+#emulator-root select.df-select {
   appearance: none !important;
   -webkit-appearance: none !important;
   border: 1px solid var(--df-line) !important;
@@ -103,11 +103,11 @@
   outline: none !important;
   max-width: 150px !important;
 }
-#device-frame-root select.df-select:hover { background-color: rgba(255, 255, 255, 0.08) !important; }
-#device-frame-root select.df-select option,
-#device-frame-root select.df-select optgroup { background: #1b1a18 !important; color: #f4f2ee !important; }
+#emulator-root select.df-select:hover { background-color: rgba(255, 255, 255, 0.08) !important; }
+#emulator-root select.df-select option,
+#emulator-root select.df-select optgroup { background: #1b1a18 !important; color: #f4f2ee !important; }
 
-#device-frame-root .df-dims {
+#emulator-root .df-dims {
   display: inline-flex !important;
   align-items: center !important;
   gap: 6px !important;
@@ -124,13 +124,13 @@
 }
 
 /* custom W x H inputs */
-#device-frame-root .df-custom {
+#emulator-root .df-custom {
   display: none !important;
   align-items: center !important;
   gap: 6px !important;
 }
-#device-frame-root .df-custom.df-show { display: inline-flex !important; }
-#device-frame-root .df-custom input {
+#emulator-root .df-custom.df-show { display: inline-flex !important; }
+#emulator-root .df-custom input {
   width: 62px !important;
   font-family: ui-monospace, Menlo, monospace !important;
   font-size: 12px !important;
@@ -143,10 +143,10 @@
   outline: none !important;
   text-align: center !important;
 }
-#device-frame-root .df-custom input:focus { border-color: var(--df-accent) !important; }
-#device-frame-root .df-custom span { color: rgba(233, 231, 226, 0.5) !important; font-size: 12px !important; }
+#emulator-root .df-custom input:focus { border-color: var(--df-accent) !important; }
+#emulator-root .df-custom span { color: rgba(233, 231, 226, 0.5) !important; font-size: 12px !important; }
 
-#device-frame-root .df-btn {
+#emulator-root .df-btn {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -159,16 +159,16 @@
   cursor: pointer !important;
   transition: background 0.15s ease, transform 0.1s ease, color 0.15s ease, opacity 0.15s ease !important;
 }
-#device-frame-root .df-btn:hover { background: rgba(255, 255, 255, 0.11) !important; color: #fff !important; }
-#device-frame-root .df-btn:active { transform: scale(0.92) !important; }
-#device-frame-root .df-btn svg { width: 18px !important; height: 18px !important; display: block !important; }
-#device-frame-root .df-btn[disabled] { opacity: 0.28 !important; cursor: not-allowed !important; pointer-events: none !important; }
-#device-frame-root .df-btn.df-close:hover { background: rgba(255, 122, 69, 0.9) !important; color: #1a0f08 !important; border-color: transparent !important; }
-#device-frame-root .df-btn.df-active { background: linear-gradient(150deg, var(--df-accent), var(--df-accent-2)) !important; color: #1a0f08 !important; border-color: transparent !important; }
-#device-frame-root .df-btn.df-dl:hover { background: linear-gradient(150deg, var(--df-accent), var(--df-accent-2)) !important; color: #1a0f08 !important; border-color: transparent !important; }
+#emulator-root .df-btn:hover { background: rgba(255, 255, 255, 0.11) !important; color: #fff !important; }
+#emulator-root .df-btn:active { transform: scale(0.92) !important; }
+#emulator-root .df-btn svg { width: 18px !important; height: 18px !important; display: block !important; }
+#emulator-root .df-btn[disabled] { opacity: 0.28 !important; cursor: not-allowed !important; pointer-events: none !important; }
+#emulator-root .df-btn.df-close:hover { background: rgba(255, 122, 69, 0.9) !important; color: #1a0f08 !important; border-color: transparent !important; }
+#emulator-root .df-btn.df-active { background: linear-gradient(150deg, var(--df-accent), var(--df-accent-2)) !important; color: #1a0f08 !important; border-color: transparent !important; }
+#emulator-root .df-btn.df-dl:hover { background: linear-gradient(150deg, var(--df-accent), var(--df-accent-2)) !important; color: #1a0f08 !important; border-color: transparent !important; }
 
 /* ---------- stage ---------- */
-#device-frame-root .df-stage {
+#emulator-root .df-stage {
   position: relative !important;
   z-index: 1 !important;
   flex: 1 1 auto !important;
@@ -190,7 +190,7 @@
 /* Studio backdrop - fades in only for Mac display frames (root.df-desk).
    Pure CSS so it needs no photo: warm top light + a soft glow pooled behind the
    device, grounded by a faint desk floor and an edge vignette. */
-#device-frame-root .df-backdrop {
+#emulator-root .df-backdrop {
   position: absolute !important;
   inset: 0 !important;
   z-index: 0 !important;
@@ -202,9 +202,9 @@
     radial-gradient(60% 46% at 50% 40%, rgba(150, 170, 205, 0.13), transparent 72%),
     linear-gradient(180deg, #17171b 0%, #131317 44%, #0d0d10 64%, #0a0a0c 100%) !important;
 }
-#device-frame-root.df-desk .df-backdrop { opacity: 1 !important; }
+#emulator-root.df-desk .df-backdrop { opacity: 1 !important; }
 /* desk floor - a soft lit surface in the lower third so the stand feels grounded */
-#device-frame-root .df-backdrop::before {
+#emulator-root .df-backdrop::before {
   content: "" !important;
   position: absolute !important;
   left: 0 !important;
@@ -216,7 +216,7 @@
     linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.035) 55%, rgba(255, 255, 255, 0.06)) !important;
 }
 /* edge vignette so the device pops off the studio */
-#device-frame-root .df-backdrop::after {
+#emulator-root .df-backdrop::after {
   content: "" !important;
   position: absolute !important;
   inset: 0 !important;
@@ -225,7 +225,7 @@
 
 /* fit() drives this transform via inline style - do NOT animate transform here or the
    animation's fill state clobbers the inline scale(). Only transition it. */
-#device-frame-root .df-scaler {
+#emulator-root .df-scaler {
   position: relative !important;
   z-index: 1 !important;
   transform-origin: center center !important;
@@ -233,7 +233,7 @@
 }
 
 /* loading spinner - shown over the device while the framed page loads, hidden on load */
-#device-frame-root .df-spinner {
+#emulator-root .df-spinner {
   position: absolute !important;
   left: 50% !important;
   top: 50% !important;
@@ -248,11 +248,11 @@
   z-index: 2 !important;
   pointer-events: none !important;
 }
-#device-frame-root .df-spinner.df-show { display: block !important; }
+#emulator-root .df-spinner.df-show { display: block !important; }
 @keyframes df-spin { to { transform: rotate(360deg); } }
 
 /* rig = device + any accessories. The pop-in animation lives here (no JS transform). */
-#device-frame-root .df-rig {
+#emulator-root .df-rig {
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -263,7 +263,7 @@
 /* Drawn-phone body: a black glass front (the bezel around the screen) wrapped in a bright
    brushed-metal rim - concentric box-shadow rings fake the shiny titanium edge so the device
    reads as a real phone against the dark stage, like the photoreal iPhone frame. */
-#device-frame-root .df-device {
+#emulator-root .df-device {
   position: relative !important;
   background: #0a0b0d !important;
   box-shadow:
@@ -272,7 +272,7 @@
     0 8px 22px -10px rgba(0, 0, 0, 0.7) !important;
 }
 /* the brushed-metal rim also catches light on the corners */
-#device-frame-root .df-device::before {
+#emulator-root .df-device::before {
   content: "" !important;
   position: absolute !important;
   inset: -9px !important;
@@ -289,60 +289,60 @@
 }
 /* the metal rim is only for drawn phones/fold - image frames (real PNG) and the watch must not
    get it, or it draws a bright rounded rectangle around their whole (padded) frame canvas */
-#device-frame-root .df-rig[data-type="image"] .df-device::before,
-#device-frame-root .df-rig[data-type="watch"] .df-device::before,
-#device-frame-root .df-rig[data-type="display"] .df-device::before,
-#device-frame-root .df-rig[data-type="laptop"] .df-device::before { display: none !important; }
+#emulator-root .df-rig[data-type="image"] .df-device::before,
+#emulator-root .df-rig[data-type="watch"] .df-device::before,
+#emulator-root .df-rig[data-type="display"] .df-device::before,
+#emulator-root .df-rig[data-type="laptop"] .df-device::before { display: none !important; }
 /* side buttons on phones */
-#device-frame-root .df-device[data-side="1"]::before,
-#device-frame-root .df-device[data-side="1"]::after {
+#emulator-root .df-device[data-side="1"]::before,
+#emulator-root .df-device[data-side="1"]::after {
   content: "" !important;
   position: absolute !important;
   background: linear-gradient(90deg, #17181b, #34363b) !important;
   border-radius: 2px !important;
 }
-#device-frame-root .df-device[data-side="1"]::before { left: -3px !important; top: 22% !important; width: 3px !important; height: 42px !important; }
-#device-frame-root .df-device[data-side="1"]::after { right: -3px !important; top: 30% !important; width: 3px !important; height: 74px !important; }
+#emulator-root .df-device[data-side="1"]::before { left: -3px !important; top: 22% !important; width: 3px !important; height: 42px !important; }
+#emulator-root .df-device[data-side="1"]::after { right: -3px !important; top: 30% !important; width: 3px !important; height: 74px !important; }
 
-#device-frame-root .df-screen {
+#emulator-root .df-screen {
   position: relative !important;
   overflow: hidden !important;
   background: #000 !important;
 }
-#device-frame-root .df-screen iframe {
+#emulator-root .df-screen iframe {
   border: 0 !important;
   display: block !important;
   background: #fff !important;
 }
 
 /* legibility scrim behind the status bar (color set inline per light/dark) */
-#device-frame-root .df-sb-scrim { display: none !important; }
+#emulator-root .df-sb-scrim { display: none !important; }
 
 /* iOS status bar overlaid on image phones/tablets (9:41 + cellular/wifi/battery) */
-#device-frame-root .df-statusbar {
+#emulator-root .df-statusbar {
   display: none !important;
   pointer-events: none !important;
   font-family: -apple-system, "SF Pro Text", "SF Pro Display", system-ui, sans-serif !important;
 }
-#device-frame-root .df-sb-time {
+#emulator-root .df-sb-time {
   font-weight: 600 !important;
   letter-spacing: 0.02em !important;
   line-height: 1 !important;
   font-variant-numeric: tabular-nums !important;
 }
-#device-frame-root .df-sb-ind {
+#emulator-root .df-sb-ind {
   display: inline-flex !important;
   align-items: center !important;
   gap: 0.34em !important;
   line-height: 1 !important;
 }
-#device-frame-root .df-sb-ind svg.df-sb-g { display: block !important; height: 1em !important; width: auto !important; }
-#device-frame-root .df-sb-ind svg.df-sb-batt { height: 0.95em !important; }
-#device-frame-root .df-sb-pct { fill: var(--sb-num, #fff) !important; font-family: -apple-system, "SF Pro Text", system-ui, sans-serif !important; }
+#emulator-root .df-sb-ind svg.df-sb-g { display: block !important; height: 1em !important; width: auto !important; }
+#emulator-root .df-sb-ind svg.df-sb-batt { height: 0.95em !important; }
+#emulator-root .df-sb-pct { fill: var(--sb-num, #fff) !important; font-family: -apple-system, "SF Pro Text", system-ui, sans-serif !important; }
 
 /* ---------- Safari bottom chrome (URL pill + toolbar) ----------
    All internal sizes are in em so the whole bar scales from the one font-size JS sets. */
-#device-frame-root .df-safari {
+#emulator-root .df-safari {
   flex-direction: column !important;
   align-items: stretch !important;
   justify-content: center !important;
@@ -351,7 +351,7 @@
   background: var(--sf-bg) !important;
   pointer-events: none !important;
 }
-#device-frame-root .df-sf-pill {
+#emulator-root .df-sf-pill {
   display: flex !important;
   align-items: center !important;
   gap: 0.5em !important;
@@ -362,8 +362,8 @@
   color: var(--sf-text) !important;
 }
 /* Safari's blue page-load line, drawn along the bottom of the URL pill */
-#device-frame-root .df-sf-pill { position: relative !important; overflow: hidden !important; }
-#device-frame-root .df-sf-prog {
+#emulator-root .df-sf-pill { position: relative !important; overflow: hidden !important; }
+#emulator-root .df-sf-prog {
   position: absolute !important;
   left: 0 !important;
   bottom: 0 !important;
@@ -374,9 +374,9 @@
   pointer-events: none !important;
   transition: width 1.6s cubic-bezier(0.1, 0.7, 0.3, 1), opacity 0.35s ease 0.4s !important;
 }
-#device-frame-root .df-sf-prog.df-go { width: 82% !important; opacity: 1 !important; transition: width 1.6s cubic-bezier(0.1, 0.7, 0.3, 1), opacity 0.1s ease !important; }
-#device-frame-root .df-sf-prog.df-done { width: 100% !important; opacity: 0 !important; transition: width 0.2s ease, opacity 0.3s ease 0.25s !important; }
-#device-frame-root .df-sf-aa {
+#emulator-root .df-sf-prog.df-go { width: 82% !important; opacity: 1 !important; transition: width 1.6s cubic-bezier(0.1, 0.7, 0.3, 1), opacity 0.1s ease !important; }
+#emulator-root .df-sf-prog.df-done { width: 100% !important; opacity: 0 !important; transition: width 0.2s ease, opacity 0.3s ease 0.25s !important; }
+#emulator-root .df-sf-aa {
   display: inline-flex !important;
   align-items: baseline !important;
   line-height: 1 !important;
@@ -385,8 +385,8 @@
   color: var(--sf-icon) !important;
   flex: 0 0 auto !important;
 }
-#device-frame-root .df-sf-aa2 { font-size: 0.72em !important; margin-left: 0.06em !important; }
-#device-frame-root .df-sf-mid {
+#emulator-root .df-sf-aa2 { font-size: 0.72em !important; margin-left: 0.06em !important; }
+#emulator-root .df-sf-mid {
   flex: 1 1 auto !important;
   display: flex !important;
   align-items: center !important;
@@ -394,27 +394,27 @@
   gap: 0.3em !important;
   min-width: 0 !important;
 }
-#device-frame-root .df-sf-lock { display: inline-flex !important; flex: 0 0 auto !important; color: var(--sf-dim) !important; }
-#device-frame-root .df-sf-lock svg { width: 0.84em !important; height: 0.84em !important; display: block !important; }
-#device-frame-root .df-sf-host {
+#emulator-root .df-sf-lock { display: inline-flex !important; flex: 0 0 auto !important; color: var(--sf-dim) !important; }
+#emulator-root .df-sf-lock svg { width: 0.84em !important; height: 0.84em !important; display: block !important; }
+#emulator-root .df-sf-host {
   overflow: hidden !important;
   text-overflow: ellipsis !important;
   white-space: nowrap !important;
   font-size: 1em !important;
   color: var(--sf-text) !important;
 }
-#device-frame-root .df-sf-reload { display: inline-flex !important; flex: 0 0 auto !important; color: var(--sf-icon) !important; cursor: pointer !important; pointer-events: auto !important; }
-#device-frame-root .df-sf-reload:active { opacity: 0.55 !important; }
-#device-frame-root .df-sf-reload svg { width: 1.18em !important; height: 1.18em !important; display: block !important; }
-#device-frame-root .df-sf-tools {
+#emulator-root .df-sf-reload { display: inline-flex !important; flex: 0 0 auto !important; color: var(--sf-icon) !important; cursor: pointer !important; pointer-events: auto !important; }
+#emulator-root .df-sf-reload:active { opacity: 0.55 !important; }
+#emulator-root .df-sf-reload svg { width: 1.18em !important; height: 1.18em !important; display: block !important; }
+#emulator-root .df-sf-tools {
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
   padding: 0 0.55em !important;
 }
-#device-frame-root .df-sf-tool { display: inline-flex !important; color: var(--sf-icon) !important; }
-#device-frame-root .df-sf-tool svg { width: 1.78em !important; height: 1.78em !important; display: block !important; }
-#device-frame-root .df-sf-home {
+#emulator-root .df-sf-tool { display: inline-flex !important; color: var(--sf-icon) !important; }
+#emulator-root .df-sf-tool svg { width: 1.78em !important; height: 1.78em !important; display: block !important; }
+#emulator-root .df-sf-home {
   align-self: center !important;
   width: 36% !important;
   height: 0.16em !important;
@@ -426,7 +426,7 @@
 
 /* photoreal PNG frame (image devices) - sits on top, masks the iframe's corners;
    pointer-events:none so clicks/scroll pass through to the iframe underneath */
-#device-frame-root .df-frameimg {
+#emulator-root .df-frameimg {
   position: absolute !important;
   inset: 0 !important;
   width: 100% !important;
@@ -439,7 +439,7 @@
 }
 
 /* dynamic island / notch / punch-hole live inside the screen, above the iframe */
-#device-frame-root .df-cam {
+#emulator-root .df-cam {
   position: absolute !important;
   z-index: 4 !important;
   top: 10px !important;
@@ -448,14 +448,14 @@
   background: #05060a !important;
   pointer-events: none !important;
 }
-#device-frame-root .df-cam[data-cam="island"] { width: 92px !important; height: 26px !important; border-radius: 16px !important; }
-#device-frame-root .df-cam[data-cam="notch"] { width: 150px !important; height: 26px !important; border-radius: 0 0 16px 16px !important; top: 0 !important; }
-#device-frame-root .df-cam[data-cam="lapnotch"] { width: 150px !important; height: 15px !important; border-radius: 0 0 10px 10px !important; top: 0 !important; }
-#device-frame-root .df-cam[data-cam="punch"] { width: 12px !important; height: 12px !important; border-radius: 50% !important; top: 12px !important; }
-#device-frame-root .df-cam[data-cam="none"] { display: none !important; }
+#emulator-root .df-cam[data-cam="island"] { width: 92px !important; height: 26px !important; border-radius: 16px !important; }
+#emulator-root .df-cam[data-cam="notch"] { width: 150px !important; height: 26px !important; border-radius: 0 0 16px 16px !important; top: 0 !important; }
+#emulator-root .df-cam[data-cam="lapnotch"] { width: 150px !important; height: 15px !important; border-radius: 0 0 10px 10px !important; top: 0 !important; }
+#emulator-root .df-cam[data-cam="punch"] { width: 12px !important; height: 12px !important; border-radius: 50% !important; top: 12px !important; }
+#emulator-root .df-cam[data-cam="none"] { display: none !important; }
 
 /* home button (iPhone SE / iPhone 5) */
-#device-frame-root .df-home {
+#emulator-root .df-home {
   position: absolute !important;
   bottom: -2px !important;
   left: 50% !important;
@@ -469,7 +469,7 @@
 }
 
 /* fold crease */
-#device-frame-root .df-crease {
+#emulator-root .df-crease {
   position: absolute !important;
   top: 0 !important;
   bottom: 0 !important;
@@ -483,11 +483,11 @@
 }
 
 /* ---------- laptop (MacBook) ---------- */
-#device-frame-root .df-rig[data-type="laptop"] .df-device {
+#emulator-root .df-rig[data-type="laptop"] .df-device {
   background: var(--df-dark) !important;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5), 0 40px 70px -30px rgba(0, 0, 0, 0.8) !important;
 }
-#device-frame-root .df-lap-base {
+#emulator-root .df-lap-base {
   position: relative !important;
   height: 22px !important;
   background: var(--df-alu) !important;
@@ -497,7 +497,7 @@
   display: none !important;
 }
 /* the thumb-scoop notch on the front lip */
-#device-frame-root .df-lap-base::after {
+#emulator-root .df-lap-base::after {
   content: "" !important;
   position: absolute !important;
   top: 0 !important;
@@ -510,7 +510,7 @@
 }
 
 /* ---------- display (Studio Display) ---------- */
-#device-frame-root .df-rig[data-type="display"] .df-device {
+#emulator-root .df-rig[data-type="display"] .df-device {
   background: var(--df-dark) !important;
   box-shadow:
     0 0 0 4px #d7d8dc,
@@ -518,7 +518,7 @@
     0 0 0 7px rgba(0, 0, 0, 0.45),
     0 50px 90px -30px rgba(0, 0, 0, 0.85) !important;
 }
-#device-frame-root .df-stand-neck {
+#emulator-root .df-stand-neck {
   width: 15% !important;
   height: 78px !important;
   background: linear-gradient(90deg, #9fa1a6 0%, #e9eaed 50%, #a6a8ad 100%) !important;
@@ -526,7 +526,7 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3) !important;
   display: none !important;
 }
-#device-frame-root .df-stand-foot {
+#emulator-root .df-stand-foot {
   width: 50% !important;
   height: 16px !important;
   background: linear-gradient(180deg, #e4e5e8, #b2b4b9) !important;
@@ -536,7 +536,7 @@
 }
 
 /* ---------- watch (Apple Watch Ultra) ---------- */
-#device-frame-root .df-band {
+#emulator-root .df-band {
   width: 66% !important;
   height: 48px !important;
   /* Apple Watch Ultra signature orange band */
@@ -544,10 +544,10 @@
   box-shadow: inset 0 2px 3px rgba(255, 255, 255, 0.35), inset 0 -2px 3px rgba(0, 0, 0, 0.25) !important;
   display: none !important;
 }
-#device-frame-root .df-band.df-band-top { border-radius: 14px 14px 6px 6px !important; margin-bottom: -10px !important; z-index: 0 !important; }
-#device-frame-root .df-band.df-band-bot { border-radius: 6px 6px 14px 14px !important; margin-top: -10px !important; z-index: 0 !important; }
+#emulator-root .df-band.df-band-top { border-radius: 14px 14px 6px 6px !important; margin-bottom: -10px !important; z-index: 0 !important; }
+#emulator-root .df-band.df-band-bot { border-radius: 6px 6px 14px 14px !important; margin-top: -10px !important; z-index: 0 !important; }
 /* watch case: black front bezel with a thin titanium rim (Apple Watch Ultra look) */
-#device-frame-root .df-rig[data-type="watch"] .df-device {
+#emulator-root .df-rig[data-type="watch"] .df-device {
   z-index: 1 !important;
   background: #08090a !important;
   box-shadow:
@@ -556,7 +556,7 @@
     0 22px 50px -18px rgba(0, 0, 0, 0.9),
     0 0 0 1px #000 !important;
 }
-#device-frame-root .df-crown {
+#emulator-root .df-crown {
   position: absolute !important;
   right: -6px !important;
   top: 34% !important;
@@ -566,7 +566,7 @@
   border-radius: 3px !important;
   display: none !important;
 }
-#device-frame-root .df-crown::after {
+#emulator-root .df-crown::after {
   content: "" !important;
   position: absolute !important;
   right: 0 !important;
@@ -578,7 +578,7 @@
 }
 
 /* ---------- blocked-by-CSP fallback ---------- */
-#device-frame-root .df-blocked {
+#emulator-root .df-blocked {
   position: absolute !important;
   inset: 0 !important;
   z-index: 5 !important;
@@ -592,11 +592,11 @@
   background: #16151a !important;
   color: #cfccc4 !important;
 }
-#device-frame-root .df-blocked.df-show { display: flex !important; }
-#device-frame-root .df-blocked strong { color: #fff !important; font-size: 15px !important; }
-#device-frame-root .df-blocked span { font-size: 12.5px !important; max-width: 240px !important; opacity: 0.75 !important; }
+#emulator-root .df-blocked.df-show { display: flex !important; }
+#emulator-root .df-blocked strong { color: #fff !important; font-size: 15px !important; }
+#emulator-root .df-blocked span { font-size: 12.5px !important; max-width: 240px !important; opacity: 0.75 !important; }
 
-#device-frame-root .df-hint {
+#emulator-root .df-hint {
   position: absolute !important;
   bottom: 14px !important;
   left: 50% !important;
@@ -606,7 +606,7 @@
   letter-spacing: 0.04em !important;
   color: rgba(233, 231, 226, 0.4) !important;
 }
-#device-frame-root .df-hint kbd {
+#emulator-root .df-hint kbd {
   font-family: ui-monospace, Menlo, monospace !important;
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid var(--df-line) !important;
@@ -616,7 +616,7 @@
 }
 
 /* download menu (PNG / WebP), docked under the HUD */
-#device-frame-root .df-menu {
+#emulator-root .df-menu {
   position: absolute !important;
   top: 66px !important;
   right: 12px !important;
@@ -633,8 +633,8 @@
   box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
   animation: df-pop 0.2s cubic-bezier(0.2, 0.8, 0.2, 1) both !important;
 }
-#device-frame-root .df-menu.df-show { display: flex !important; }
-#device-frame-root .df-mi {
+#emulator-root .df-menu.df-show { display: flex !important; }
+#emulator-root .df-mi {
   display: flex !important;
   align-items: baseline !important;
   gap: 8px !important;
@@ -646,12 +646,12 @@
   text-align: left !important;
   cursor: pointer !important;
 }
-#device-frame-root .df-mi:hover { background: rgba(255, 255, 255, 0.09) !important; }
-#device-frame-root .df-mi b { font-size: 12.5px !important; font-weight: 700 !important; color: var(--df-accent) !important; font-family: ui-monospace, Menlo, monospace !important; }
-#device-frame-root .df-mi span { font-size: 11.5px !important; color: rgba(233, 231, 226, 0.6) !important; }
+#emulator-root .df-mi:hover { background: rgba(255, 255, 255, 0.09) !important; }
+#emulator-root .df-mi b { font-size: 12.5px !important; font-weight: 700 !important; color: var(--df-accent) !important; font-family: ui-monospace, Menlo, monospace !important; }
+#emulator-root .df-mi span { font-size: 11.5px !important; color: rgba(233, 231, 226, 0.6) !important; }
 
 /* toast - status line for copy / save / share, bottom center */
-#device-frame-root .df-toast {
+#emulator-root .df-toast {
   position: absolute !important;
   left: 50% !important;
   bottom: 44px !important;
@@ -673,11 +673,11 @@
   pointer-events: none !important;
   transition: opacity 0.2s ease, transform 0.2s ease !important;
 }
-#device-frame-root .df-toast.df-show { opacity: 1 !important; transform: translateX(-50%) !important; pointer-events: auto !important; }
-#device-frame-root .df-toast a { color: var(--df-accent) !important; text-decoration: underline !important; }
+#emulator-root .df-toast.df-show { opacity: 1 !important; transform: translateX(-50%) !important; pointer-events: auto !important; }
+#emulator-root .df-toast a { color: var(--df-accent) !important; text-decoration: underline !important; }
 
 /* during capture: hide the chrome so only the device is in frame */
-#device-frame-root.df-capturing .df-bar,
-#device-frame-root.df-capturing .df-menu,
-#device-frame-root.df-capturing .df-toast,
-#device-frame-root.df-capturing .df-hint { visibility: hidden !important; }
+#emulator-root.df-capturing .df-bar,
+#emulator-root.df-capturing .df-menu,
+#emulator-root.df-capturing .df-toast,
+#emulator-root.df-capturing .df-hint { visibility: hidden !important; }

@@ -1,4 +1,4 @@
-// Toggle the device-frame overlay on the active tab when the toolbar icon is clicked.
+// Toggle the emulator overlay on the active tab when the toolbar icon is clicked.
 // Uses on-demand injection (activeTab + scripting) so nothing runs on pages until asked.
 
 // Most sites refuse to be embedded (X-Frame-Options / CSP frame-ancestors). Like
@@ -45,7 +45,7 @@ async function enableStrip(tabId, host) {
       addRules: [stripRuleFor(tabId, host)],
     });
   } catch (err) {
-    console.warn("[Device Frame] could not enable header strip:", err?.message || err);
+    console.warn("[Emulator] could not enable header strip:", err?.message || err);
   }
 }
 
@@ -66,7 +66,7 @@ async function setActiveBadge(tabId, on) {
     // swap the toolbar icon itself: green X while framing (click to close), normal when idle
     await chrome.action.setIcon({ tabId, path: on ? ACTIVE_ICON : NORMAL_ICON });
     if (on) {
-      await chrome.action.setTitle({ tabId, title: "Device Frame - framing this tab (click to close)" });
+      await chrome.action.setTitle({ tabId, title: "Emulator - framing this tab (click to close)" });
     } else {
       await chrome.action.setTitle({ tabId, title: "Frame this tab in a device" });
     }
@@ -83,7 +83,7 @@ chrome.action.onClicked.addListener(async (tab) => {
   } catch (err) {
     // Chrome Web Store, chrome:// pages, PDF viewer etc. cannot be scripted.
     await disableStrip(tab.id);
-    console.warn("[Device Frame] cannot run on this page:", err?.message || err);
+    console.warn("[Emulator] cannot run on this page:", err?.message || err);
   }
 });
 

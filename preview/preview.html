@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Device Frame - preview</title>
+<title>Emulator - preview</title>
 <link rel="stylesheet" href="../overlay.css">
 <style>html,body{margin:0;height:100%;background:#000}</style>
 </head>
@@ -20,10 +20,10 @@
     var d = new URLSearchParams(location.search).get("d");
     var land = new URLSearchParams(location.search).get("o") === "land";
     if (!d) return;
-    var sel = document.querySelector("#device-frame-root .df-select");
+    var sel = document.querySelector("#emulator-root .df-select");
     if (sel) { sel.value = d; sel.dispatchEvent(new Event("change")); }
     if (land) {
-      var rot = document.querySelector("#device-frame-root .df-btn");
+      var rot = document.querySelector("#emulator-root .df-btn");
       if (rot && !rot.disabled) rot.click();
     }
   })();
