@@ -67,6 +67,7 @@
     close: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
     contrast: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z" fill="currentColor" stroke="none"/></svg>',
     github: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.8.5 12.3c0 5.2 3.4 9.6 8 11.1.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7 0-.7 0-.7 1.2.1 1.9 1.3 1.9 1.3 1.1 1.9 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.4-5.5-6 0-1.3.5-2.4 1.3-3.2-.2-.3-.6-1.6 0-3.3 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.6 1.7.2 3 .1 3.3.8.8 1.3 1.9 1.3 3.2 0 4.6-2.8 5.7-5.5 6 .4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 8-5.9 8-11.1C23.5 5.8 18.3.5 12 .5z"/></svg>',
+    copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2.2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>',
     share: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="2.6"/><circle cx="6" cy="12" r="2.6"/><circle cx="18" cy="19" r="2.6"/><path d="M8.3 10.6l7.4-4.2M8.3 13.4l7.4 4.2"/></svg>',
   };
 
@@ -137,18 +138,27 @@
   const sbBtn = el("button", "df-btn", ICONS.contrast);
   sbBtn.title = "Status bar: dark / light";
   const dlBtn = el("button", "df-btn df-dl", ICONS.download);
-  dlBtn.title = "Download PNG (with frame)";
+  dlBtn.title = "Download - PNG (transparent) or WebP";
+  const copyBtn = el("button", "df-btn", ICONS.copy);
+  copyBtn.title = "Copy image (transparent PNG)";
   const reloadBtn = el("button", "df-btn", ICONS.reload);
   reloadBtn.title = "Reload frame";
   const ghBtn = el("button", "df-btn", ICONS.github);
   ghBtn.title = "View Device Frame on GitHub";
   const shareBtn = el("button", "df-btn", ICONS.share);
-  shareBtn.title = "Share Device Frame";
+  shareBtn.title = "Share - upload and get a public link";
   const closeBtn = el("button", "df-btn df-close", ICONS.close);
   closeBtn.title = "Close (Esc)";
 
   // reload lives in the Safari bar now (for iPhone); keep it in the toolbar for every other device
-  bar.append(brand, el("div", "df-sep"), select, dims, custom, el("div", "df-sep"), rotateBtn, sbBtn, dlBtn, reloadBtn, el("div", "df-sep"), ghBtn, shareBtn, closeBtn);
+  bar.append(brand, el("div", "df-sep"), select, dims, custom, el("div", "df-sep"), rotateBtn, sbBtn, copyBtn, dlBtn, reloadBtn, el("div", "df-sep"), ghBtn, shareBtn, closeBtn);
+
+  // download menu (PNG / WebP) + toast, both docked under the HUD
+  const menu = el("div", "df-menu");
+  const miPng = el("button", "df-mi", "<b>PNG</b><span>transparent background</span>");
+  const miWebp = el("button", "df-mi", "<b>WebP</b><span>HD, small file</span>");
+  menu.append(miPng, miWebp);
+  const toastEl = el("div", "df-toast");
 
   // ---- stage + rig ----
   const stage = el("div", "df-stage");
@@ -186,7 +196,8 @@
   const sfMid = el("span", "df-sf-mid");
   sfMid.append(sfLock, sfHost);
   const sfReload = el("span", "df-sf-reload", SF_ICONS.reload);
-  sfPill.append(sfAa, sfMid, sfReload);
+  const sfProg = el("div", "df-sf-prog"); // Safari's blue page-load line under the URL
+  sfPill.append(sfAa, sfMid, sfReload, sfProg);
   const sfTools = el("div", "df-sf-tools");
   ["back", "forward", "share", "book", "tabs"].forEach((k) =>
     sfTools.append(el("span", "df-sf-tool", SF_ICONS[k]))
@@ -211,7 +222,7 @@
   scaler.append(rig);
   stage.append(backdrop, scaler, spinner);
 
-  root.append(bar, stage);
+  root.append(bar, menu, stage, toastEl);
   document.documentElement.appendChild(root);
 
   // ---- rendering ----
@@ -342,51 +353,67 @@
     sbScrim.style.setProperty("display", "none", "important");
 
     // Safari bottom chrome with the framed page's real domain
-    let host = "", secure = true;
-    try {
-      const u = new URL(window.__DF_SRC || location.href, location.href);
-      // show the real URL (host:port + path + query), minus protocol/www; the pill ellipsis-
-      // truncates it when it runs past the available width, like Safari does.
-      host = (u.host.replace(/^www\./, "") + u.pathname + u.search).replace(/\/$/, "") || u.host;
-      secure = u.protocol === "https:";
-    } catch (_) {}
+    const { host, secure } = framedHost();
     placeSafariBar(fr.ox, fr.oy, fr.sw, fr.sh, fr.sf, host, secure, fr.sr);
   }
 
+  // The framed page's URL as Safari shows it (host:port + path + query, minus protocol/www);
+  // the pill ellipsis-truncates it when it runs past the available width.
+  function framedHost() {
+    try {
+      const u = new URL(window.__DF_SRC || location.href, location.href);
+      const host = (u.host.replace(/^www\./, "") + u.pathname + u.search).replace(/\/$/, "") || u.host;
+      return { host, secure: u.protocol === "https:" };
+    } catch (_) {
+      return { host: "", secure: true };
+    }
+  }
+
   // Landscape for an image device that has no dedicated landscape PNG: rotate the portrait
-  // frame 90deg and lay the page out landscape in the rotated screen rect (status/Safari chrome
-  // are hidden in this orientation for simplicity).
+  // frame 90deg CW and lay the page out landscape in the rotated screen rect, with the same
+  // status bar on top and Safari chrome at the bottom as portrait.
   function renderImageRotated(d) {
     const fr = d.frame;
     const kP = fr.sw / d.wl; // portrait scale
     const wl = Math.round(fr.sh / kP); // landscape logical width  (= portrait logical height)
     const k = fr.sh / wl; // scale to fill the (rotated) screen width
-    const hl = Math.round(fr.sw / k); // landscape logical height (= portrait logical width)
+    const sb = fr.sb;
+    const zone = sb ? Math.round(sb.top + sb.h) : 0; // status-bar band reserved at top (frame px)
+    const sfH = fr.sf ? Math.round(fr.sf.h) : 0; // Safari chrome reserved at bottom (frame px)
+    const hl = Math.round((fr.sw - zone - sfH) / k); // logical page height between the two
     const SBW = 17;
 
     rig.setAttribute("data-type", "image");
-    [crease, lapBase, standNeck, standFoot, bandTop, bandBot, crown, home, cam, statusbar, sbScrim, safariBar].forEach((n) =>
+    [crease, lapBase, standNeck, standFoot, bandTop, bandBot, crown, home, cam].forEach((n) =>
       n.style.setProperty("display", "none", "important")
     );
 
     // device box is the rotated frame: fh wide x fw tall
     device.style.cssText = `position:relative !important;width:${fr.fh}px !important;height:${fr.fw}px !important;background:none !important;border-radius:0 !important;box-shadow:none !important;padding:0 !important;`;
 
-    // screen rect mapped through a 90deg CW rotation of the portrait frame
+    // screen rect mapped through a 90deg CW rotation of the portrait frame. The cap above oy
+    // (island zone) lands on the RIGHT: the screen covers it too, so the band color runs as one
+    // straight strip holding the island and the corners round only at the bezel.
+    const cap = fr.ot != null ? fr.oy - fr.ot : 0;
     const sLeft = fr.fh - fr.oy - fr.sh;
     const sTop = fr.ox;
+    const sW = fr.sh + cap;
+    const sH = fr.sw;
     const r = fr.sr || 0;
-    // the cap above oy (island zone) lands on the right after rotation: cover it with the band
-    // color so the page runs to a black/white strip holding the island, corners rounded at the bezel
-    const cap = fr.ot != null ? fr.oy - fr.ot : 0;
-    const bandColor = state.sbLight ? "#0b0b0c" : "#ffffff";
-    screen.style.cssText = `position:absolute !important;left:${sLeft}px !important;top:${sTop}px !important;width:${fr.sh + cap}px !important;height:${fr.sw}px !important;background:${bandColor} !important;border-radius:${r}px !important;overflow:hidden !important;`;
-    iframe.style.cssText = `position:absolute !important;left:0 !important;top:0 !important;width:${wl + SBW}px !important;height:${hl}px !important;border:0 !important;background:#fff !important;transform-origin:0 0 !important;transform:scale(${k}) !important;`;
+    const bandColor = sb ? (state.sbLight ? "#0b0b0c" : "#ffffff") : "#000";
+    screen.style.cssText = `position:absolute !important;left:${sLeft}px !important;top:${sTop}px !important;width:${sW}px !important;height:${sH}px !important;background:${bandColor} !important;border-radius:${r}px !important;overflow:hidden !important;`;
+    iframe.style.cssText = `position:absolute !important;left:0 !important;top:${zone}px !important;width:${wl + SBW}px !important;height:${hl}px !important;border:0 !important;background:#fff !important;transform-origin:0 0 !important;transform:scale(${k}) !important;`;
 
     // the portrait PNG rotated 90deg CW, translated back into the device box
     frameImg.style.cssText = `position:absolute !important;left:0 !important;top:0 !important;width:${fr.fw}px !important;height:${fr.fh}px !important;transform-origin:0 0 !important;transform:translate(${fr.fh}px,0) rotate(90deg) !important;pointer-events:none !important;z-index:6 !important;display:block !important;`;
     const url = FRAMES_BASE + fr.file;
     if (frameImg.getAttribute("src") !== url) frameImg.src = url;
+
+    if (statusbar.parentNode !== device) device.appendChild(statusbar);
+    placeStatusBar(sLeft, sTop, sW, sb);
+    sbScrim.style.setProperty("display", "none", "important");
+    const { host, secure } = framedHost();
+    placeSafariBar(sLeft, sTop, sW, sH, fr.sf, host, secure, r);
   }
 
   function renderDrawn(d) {
@@ -461,10 +488,9 @@
     else renderDrawn(d);
 
     const dim = logicalDims(d);
-    const rotatedSynth = d.type === "image" && d.rot && state.landscape && !d.frameL;
     const hasSb =
       d.type === "image"
-        ? !rotatedSynth && !!(state.landscape && d.frameL ? d.frameL.sb : d.frame && d.frame.sb)
+        ? !!(state.landscape && d.frameL ? d.frameL.sb : d.frame && d.frame.sb)
         : !!(d.sb && !state.landscape);
     rotateBtn.disabled = !d.rot;
     rotateBtn.classList.toggle("df-active", !!(d.rot && state.landscape));
@@ -472,7 +498,7 @@
     sbBtn.classList.toggle("df-active", hasSb && state.sbLight);
     custom.classList.toggle("df-show", d.id === "custom");
     // hide the toolbar reload when the device has its own working reload in the Safari bar
-    const hasSafari = !rotatedSynth && d.type === "image" && !!(state.landscape && d.frameL ? d.frameL.sf : d.frame && d.frame.sf);
+    const hasSafari = d.type === "image" && !!(state.landscape && d.frameL ? d.frameL.sf : d.frame && d.frame.sf);
     reloadBtn.style.setProperty("display", hasSafari ? "none" : "inline-flex", "important");
     root.classList.toggle("df-desk", !!d.desk); // wallpaper backdrop for Mac displays only
     dims.style.display = d.id === "custom" ? "none" : "inline-flex";
@@ -482,6 +508,9 @@
     if (reloadSrc) {
       blocked.classList.remove("df-show");
       spinner.classList.add("df-show"); // spin while the page loads
+      sfProg.classList.remove("df-done");
+      void sfProg.offsetWidth; // restart the line from 0 on every reload
+      sfProg.classList.add("df-go");
       iframe.src = window.__DF_SRC || location.href; // __DF_SRC lets preview.html swap the page
       clearTimeout(loadTimer);
       loadTimer = setTimeout(() => {
@@ -490,6 +519,36 @@
       }, 6000);
     }
     fit();
+  }
+
+  // Rotate portrait <-> landscape with a real spin: the current render turns 90deg (CW into
+  // landscape, back CCW) while scaling to the other orientation's fit, then the true layout is
+  // swapped in underneath with transitions off. Both fill the same on-screen box, so no jump.
+  let rotating = false;
+  function rotate() {
+    const d = current();
+    if (!d.rot || rotating) return;
+    rotating = true;
+    const toLand = !state.landscape;
+    const rw = rig.offsetWidth || 1;
+    const rh = rig.offsetHeight || 1;
+    const next = Math.min(Math.min((stage.clientWidth - 24) / rh, (stage.clientHeight - 24) / rw), 1) * 0.8;
+    scaler.style.setProperty("transition", "transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)", "important");
+    scaler.style.transform = `scale(${next}) rotate(${toLand ? 90 : -90}deg)`;
+    let done = false;
+    const finish = () => {
+      if (done) return;
+      done = true;
+      scaler.removeEventListener("transitionend", finish);
+      scaler.style.setProperty("transition", "none", "important");
+      state.landscape = toLand;
+      render(false); // fit() lands on scale(next) with no rotation
+      void scaler.offsetWidth; // flush before the transition comes back
+      scaler.style.removeProperty("transition");
+      rotating = false;
+    };
+    scaler.addEventListener("transitionend", finish);
+    setTimeout(finish, 650); // transitionend can be swallowed (tab hidden) - never get stuck
   }
 
   function fit() {
@@ -506,16 +565,20 @@
     scaler.style.transform = `scale(${scale})`;
   }
 
-  // ---- PNG export (captures rendered pixels, so cross-origin frames are included) ----
+  // ---- export: PNG (transparent) / WebP / copy / share ----
+  // Grabs the rendered pixels (the framed page is cross-origin, so only a tab capture can see
+  // it) and crops to the rig with a little padding for the shadow.
   let capturing = false;
-  async function download() {
-    if (capturing) return;
+  const loadImage = (src) =>
+    new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = src; });
+  const toBlob = (c, type, q) => new Promise((r) => c.toBlob(r, type, q));
+  async function capture() {
+    if (capturing) return null;
     capturing = true;
     const d = current();
     const dim = logicalDims(d);
     root.classList.add("df-capturing");
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
-
     const dpr = window.devicePixelRatio || 1;
     const box = rig.getBoundingClientRect();
     const pad = 26;
@@ -526,59 +589,179 @@
       resp = { error: e && e.message };
     }
     root.classList.remove("df-capturing");
-    if (!resp || resp.error || !resp.dataUrl) {
-      capturing = false;
+    let img = null;
+    if (resp && resp.dataUrl) img = await loadImage(resp.dataUrl).catch(() => null);
+    capturing = false;
+    if (!img) {
       console.warn("[Device Frame] capture failed:", resp && resp.error);
-      return;
+      toast("Capture failed");
+      return null;
     }
-
-    const img = new Image();
-    img.onload = () => {
-      const sx = Math.max(0, Math.round((box.left - pad) * dpr));
-      const sy = Math.max(0, Math.round((box.top - pad) * dpr));
-      const sw = Math.min(img.width - sx, Math.round((box.width + pad * 2) * dpr));
-      const sh = Math.min(img.height - sy, Math.round((box.height + pad * 2) * dpr));
-      const c = document.createElement("canvas");
-      c.width = sw;
-      c.height = sh;
-      c.getContext("2d").drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
-      c.toBlob((blob) => {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `device-frame-${d.id}-${dim.w}x${dim.h}.png`;
-        a.click();
-        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-        capturing = false;
-      }, "image/png");
-    };
-    img.onerror = () => { capturing = false; };
-    img.src = resp.dataUrl;
+    const sx = Math.max(0, Math.round((box.left - pad) * dpr));
+    const sy = Math.max(0, Math.round((box.top - pad) * dpr));
+    const sw = Math.min(img.width - sx, Math.round((box.width + pad * 2) * dpr));
+    const sh = Math.min(img.height - sy, Math.round((box.height + pad * 2) * dpr));
+    const canvas = document.createElement("canvas");
+    canvas.width = sw;
+    canvas.height = sh;
+    canvas.getContext("2d").drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+    return { canvas, ox: sx, oy: sy, dpr, d, dim };
   }
+
+  // Knock the stage out so only the device is left: keep the frame PNG's opaque pixels (or the
+  // drawn bezel's rounded boxes) plus the screen rect; everything else goes transparent.
+  async function transparent(cap) {
+    const { canvas, ox, oy, dpr, d } = cap;
+    const mask = document.createElement("canvas");
+    mask.width = canvas.width;
+    mask.height = canvas.height;
+    const g = mask.getContext("2d");
+    g.fillStyle = "#000";
+    const k = rig.getBoundingClientRect().width / (rig.offsetWidth || 1); // on-screen px per layout px
+    const rect = (n, grow = 0) => {
+      const r = n.getBoundingClientRect();
+      const e = grow * k * dpr;
+      return { x: r.left * dpr - ox - e, y: r.top * dpr - oy - e, w: r.width * dpr + e * 2, h: r.height * dpr + e * 2 };
+    };
+    const rrect = (b, rad) => { g.beginPath(); g.roundRect(b.x, b.y, b.w, b.h, Math.max(0, rad)); g.fill(); };
+    if (d.type === "image") {
+      const fr = d.rot && state.landscape && d.frameL ? d.frameL : d.frame;
+      const rotated = d.rot && state.landscape && !d.frameL;
+      const b = rect(device);
+      try {
+        const bmp = await createImageBitmap(await (await fetch(FRAMES_BASE + fr.file)).blob());
+        g.save();
+        if (rotated) { g.translate(b.x + b.w, b.y); g.rotate(Math.PI / 2); g.drawImage(bmp, 0, 0, b.h, b.w); }
+        else g.drawImage(bmp, b.x, b.y, b.w, b.h);
+        g.restore();
+      } catch (_) {
+        rrect(b, 0);
+      }
+      rrect(rect(screen), (fr.sr || 0) * k * dpr);
+    } else {
+      const rim = !["watch", "display", "laptop"].includes(d.type) ? 9 : 0; // metal rim sits 9px outside the body
+      [device, lapBase, standNeck, standFoot, bandTop, bandBot].forEach((n) => {
+        if (getComputedStyle(n).display === "none") return;
+        const grow = n === device ? rim : 0;
+        rrect(rect(n, grow), (parseFloat(getComputedStyle(n).borderRadius) || 0) * k * dpr + grow * k * dpr);
+      });
+    }
+    const out = document.createElement("canvas");
+    out.width = canvas.width;
+    out.height = canvas.height;
+    const o = out.getContext("2d");
+    o.drawImage(canvas, 0, 0);
+    o.globalCompositeOperation = "destination-in";
+    o.drawImage(mask, 0, 0);
+    return out;
+  }
+
+  const fileName = (cap, ext) => `device-frame-${cap.d.id}-${cap.dim.w}x${cap.dim.h}.${ext}`;
+  function save(blob, name) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  async function exportPng() {
+    const cap = await capture();
+    if (!cap) return;
+    save(await toBlob(await transparent(cap), "image/png"), fileName(cap, "png"));
+    toast("PNG saved - transparent background");
+  }
+  async function exportWebp() {
+    const cap = await capture();
+    if (!cap) return;
+    save(await toBlob(cap.canvas, "image/webp", 0.92), fileName(cap, "webp"));
+    toast("WebP saved");
+  }
+  async function copyPng() {
+    const cap = await capture();
+    if (!cap) return;
+    try {
+      const blob = await toBlob(await transparent(cap), "image/png");
+      await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+      flash(copyBtn);
+      toast("Image copied - transparent PNG");
+    } catch (_) {
+      toast("Copy failed - click the page once, then try again");
+    }
+  }
+
+  // Share: upload a WebP of the device to bunlongheng.com and hand back a public link.
+  // The upload goes through the service worker (extension origin, no CORS dance).
+  const blobToBase64 = (blob) =>
+    new Promise((res, rej) => {
+      const fr = new FileReader();
+      fr.onload = () => res(String(fr.result).split(",")[1] || "");
+      fr.onerror = rej;
+      fr.readAsDataURL(blob);
+    });
+  async function share() {
+    const cap = await capture();
+    if (!cap) return;
+    shareBtn.disabled = true;
+    toast("Uploading…", 8000);
+    try {
+      const blob = await toBlob(cap.canvas, "image/webp", 0.9);
+      const data = await blobToBase64(blob);
+      let page = "";
+      try { const u = new URL(window.__DF_SRC || location.href, location.href); page = u.host + u.pathname; } catch (_) {}
+      const body = { device: cap.d.label, url: page, width: cap.canvas.width, height: cap.canvas.height, mime: "image/webp", data };
+      const resp = await chrome.runtime.sendMessage({ type: "df-share", body });
+      if (!resp || !resp.ok || !resp.url) throw new Error((resp && resp.error) || "upload failed");
+      try { await navigator.clipboard.writeText(resp.url); } catch (_) {}
+      toast("Link copied - ", 6000, resp.url);
+      flash(shareBtn);
+    } catch (e) {
+      toast("Share failed - " + ((e && e.message) || "unknown error"), 4000);
+    }
+    shareBtn.disabled = false;
+  }
+
+  let toastTimer = null;
+  function toast(msg, ms = 2200, href) {
+    toastEl.textContent = msg;
+    if (href) {
+      const a = document.createElement("a");
+      a.href = href;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.textContent = href.replace(/^https?:\/\//, "");
+      toastEl.append(a);
+    }
+    toastEl.classList.add("df-show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("df-show"), ms);
+  }
+  const flash = (btn) => { btn.classList.add("df-active"); setTimeout(() => btn.classList.remove("df-active"), 1200); };
 
   // ---- events ----
   iframe.addEventListener("load", () => {
     clearTimeout(loadTimer);
     blocked.classList.remove("df-show");
     spinner.classList.remove("df-show"); // page arrived - stop the spinner
+    sfProg.classList.remove("df-go");
+    sfProg.classList.add("df-done"); // run the blue line to the end, then fade it
   });
   select.addEventListener("change", () => { state.deviceId = select.value; render(true); });
-  rotateBtn.addEventListener("click", () => { state.landscape = !state.landscape; render(false); });
+  rotateBtn.addEventListener("click", rotate);
   sbBtn.addEventListener("click", () => { state.sbLight = !state.sbLight; render(false); });
-  dlBtn.addEventListener("click", () => download());
+  dlBtn.addEventListener("click", (e) => { e.stopPropagation(); menu.classList.toggle("df-show"); });
+  miPng.addEventListener("click", () => { menu.classList.remove("df-show"); exportPng(); });
+  miWebp.addEventListener("click", () => { menu.classList.remove("df-show"); exportWebp(); });
+  copyBtn.addEventListener("click", () => copyPng());
+  menu.addEventListener("click", (e) => e.stopPropagation());
+  const onDocClick = () => {
+    if (!root.isConnected) { document.removeEventListener("click", onDocClick, true); return; }
+    menu.classList.remove("df-show");
+  };
+  document.addEventListener("click", onDocClick, true);
   reloadBtn.addEventListener("click", () => render(true));
   sfReload.addEventListener("click", () => render(true)); // Safari-bar reload (iPhone)
   ghBtn.addEventListener("click", () => window.open(REPO_URL, "_blank", "noopener,noreferrer"));
-  shareBtn.addEventListener("click", async () => {
-    try {
-      if (navigator.share) {
-        await navigator.share({ title: "Device Frame", text: "Frame any tab in a real device bezel.", url: REPO_URL });
-      } else {
-        await navigator.clipboard.writeText(REPO_URL);
-        shareBtn.classList.add("df-active");
-        setTimeout(() => shareBtn.classList.remove("df-active"), 1200); // brief "copied" flash
-      }
-    } catch (_) {}
-  });
+  shareBtn.addEventListener("click", () => share());
   closeBtn.addEventListener("click", () => close());
 
   const clampCustom = () => {
@@ -594,7 +777,12 @@
   // keydown/resize handlers stay bound to window forever, pinning its dead DOM in memory.
   const onKey = (e) => {
     if (!root.isConnected) { window.removeEventListener("keydown", onKey, true); return; }
-    if (e.key === "Escape") { e.stopPropagation(); close(); return; }
+    if (e.key === "Escape") {
+      e.stopPropagation();
+      if (menu.classList.contains("df-show")) { menu.classList.remove("df-show"); return; }
+      close();
+      return;
+    }
     // Cmd/Ctrl+R reloads the framed page (not the whole tab, which would kill the overlay)
     if ((e.metaKey || e.ctrlKey) && !e.shiftKey && !e.altKey && (e.key === "r" || e.key === "R")) {
       e.preventDefault();
@@ -613,6 +801,7 @@
     clearTimeout(loadTimer);
     window.removeEventListener("keydown", onKey, true);
     window.removeEventListener("resize", onResize);
+    document.removeEventListener("click", onDocClick, true);
     root.remove();
     delete window.__deviceFrame;
     try { chrome.runtime.sendMessage({ type: "df-close" }); } catch (_) {} // drop header-strip rule

@@ -11,11 +11,14 @@ Click the toolbar icon once to frame the tab, click again (or press <kbd>Esc</kb
 - **Live tab, framed** - the page you are on, running inside a real device body (an `<iframe>` at the device's logical viewport).
 - **Photoreal Apple frames** - high-resolution device PNGs with the live site composited into the transparent screen area using exact per-frame insets: **iPhone 17 Pro Max**, **iPad Pro 13" (M4)** (portrait + landscape), **iPad (A16)**, **MacBook**, **iMac 24"**, **Studio Display**.
 - **iOS Safari chrome** on the iPhone - black status bar (9:41, cellular, Wi-Fi, battery) and a Safari bottom bar with the framed page's real domain (`Aa`, lock, URL, reload) plus the toolbar row (back, forward, share, bookmark, tabs). The page is inset between the two so nothing overlaps.
-- **Rotate** to landscape - the iPhone synthesizes landscape by rotating the portrait frame 90 degrees; each orientation fills the stage; the iPad ships a dedicated landscape frame.
+- **Rotate** to landscape with a real spin animation - the iPhone synthesizes landscape by rotating the portrait frame 90 degrees and keeps its status bar and Safari chrome; each orientation fills the stage; the iPad ships a dedicated landscape frame.
 - **Drawn (CSS) frames** for devices with no photoreal asset: Galaxy Z Fold (open), Apple Watch Ultra (orange band), and a Custom size.
 - **Studio backdrop** behind the Mac displays; a flat neutral stage behind phones.
 - **Toolbar icon state** - the icon shows the device family normally and swaps to a red X while a tab is framed (click to close).
-- **Download PNG** (frame baked in) - exports the framed device via `captureVisibleTab`, so it captures rendered pixels and works even on cross-origin pages, then crops to the device.
+- **Download** as **PNG (transparent background)** or **WebP (HD, small file)** - exports the framed device via `captureVisibleTab`, so it captures rendered pixels and works even on cross-origin pages, then crops to the device. The PNG is masked with the frame's own alpha so the stage is knocked out.
+- **Copy** the transparent PNG straight to the clipboard.
+- **Share** - uploads a WebP of the device to bunlongheng.com and copies back a public link (`/frames/<id>`) with Open Graph preview.
+- **Safari loading line** - the blue page-load bar runs inside the URL pill while the framed page loads.
 - **Loading spinner** while the framed page loads; <kbd>Cmd</kbd>/<kbd>Ctrl</kbd>+<kbd>R</kbd> reloads the framed page (not the whole tab) so the overlay stays open.
 - **Custom size** - pick "Custom size…" and type any width × height.
 - **On-demand injection** (`activeTab` + `scripting`) - nothing runs on any page until you click the icon.
@@ -30,7 +33,7 @@ Click the toolbar icon once to frame the tab, click again (or press <kbd>Esc</kb
 
 ## How it works
 
-- **`background.js`** (service worker) toggles the overlay on the active tab when the toolbar icon is clicked, injecting `overlay.css` + `overlay.js` on demand. It answers the overlay's `df-capture` message with a `captureVisibleTab` screenshot for the PNG export, and drives the on/off toolbar icon.
+- **`background.js`** (service worker) toggles the overlay on the active tab when the toolbar icon is clicked, injecting `overlay.css` + `overlay.js` on demand. It answers the overlay's `df-capture` message with a `captureVisibleTab` screenshot for the exports, relays `df-share` uploads to bunlongheng.com from the extension origin, and drives the on/off toolbar icon.
 - **`overlay.js`** builds a full-screen overlay containing the device frame and an `<iframe>` pointed at the current tab's URL, then scales the device to fit the window. Re-injection (a second click) tears the overlay down - even an orphaned one left after an extension reload.
 - **`overlay.css`** owns all the styling (frames, Safari chrome, backdrop, spinner).
 
@@ -56,7 +59,7 @@ python3 -m http.server 8099   # from the repo root
 # ?d=<device-id> picks the frame, &o=land rotates it, &src=<url> frames any page
 ```
 
-Device ids: `iphone`, `ipada16`, `ipadpro`, `macbook`, `imac`, `studiodisplay`, `zfold`, `watch`, `custom`. The PNG export is a no-op here - it needs the real extension's background worker.
+Device ids: `iphone`, `ipada16`, `ipadpro`, `macbook`, `imac`, `studiodisplay`, `zfold`, `watch`, `custom`. Export, copy and share are no-ops here - they need the real extension's background worker.
 
 ## Test
 

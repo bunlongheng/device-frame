@@ -13,6 +13,7 @@ export default [
         window: "readonly", document: "readonly", location: "readonly", navigator: "readonly",
         chrome: "readonly", console: "readonly", URL: "readonly", URLSearchParams: "readonly",
         Image: "readonly", Event: "readonly", Blob: "readonly", HTMLElement: "readonly",
+        fetch: "readonly", createImageBitmap: "readonly", ClipboardItem: "readonly", FileReader: "readonly",
         setTimeout: "readonly", clearTimeout: "readonly", requestAnimationFrame: "readonly",
         devicePixelRatio: "readonly", getComputedStyle: "readonly",
       },

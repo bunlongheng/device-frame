@@ -31,6 +31,8 @@ function stripRuleFor(tabId, host) {
   };
 }
 
+const SHARE_API = "https://bunlongheng.com/api/frames";
+
 function hostOf(url) {
   try { return new URL(url).hostname; } catch (_) { return null; }
 }
@@ -110,6 +112,22 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       sendResponse(err ? { error: err.message } : { dataUrl });
     });
     return true; // keep the message channel open for the async response
+  }
+
+  // The overlay hands us the rendered device image; we POST it to bunlongheng.com from the
+  // extension origin (host_permissions cover it, so no CORS) and relay the public link back.
+  if (msg && msg.type === "df-share") {
+    fetch(SHARE_API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(msg.body || {}),
+    })
+      .then(async (r) => {
+        const j = await r.json().catch(() => ({}));
+        sendResponse(r.ok ? j : { error: j.error || `HTTP ${r.status}` });
+      })
+      .catch((e) => sendResponse({ error: (e && e.message) || "network error" }));
+    return true;
   }
 });
 
