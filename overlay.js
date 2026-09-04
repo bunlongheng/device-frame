@@ -341,7 +341,7 @@
     const cap = fr.ot != null ? fr.oy - fr.ot : 0;
     const radius = cap ? `${r}px` : `0 0 ${r}px ${r}px`;
     screen.style.cssText = `position:absolute !important;left:${fr.ox}px !important;top:${fr.oy - cap}px !important;width:${fr.sw}px !important;height:${fr.sh + cap}px !important;background:${bandColor} !important;border-radius:${radius} !important;overflow:hidden !important;`;
-    iframe.style.cssText = `position:absolute !important;left:0 !important;top:${zone + cap}px !important;width:${wl + SBW}px !important;height:${hl}px !important;border:0 !important;background:#fff !important;transform-origin:0 0 !important;transform:scale(${k}) !important;`;
+    iframe.style.cssText = `position:absolute !important;left:0 !important;top:${zone + cap}px !important;width:${wl + SBW}px !important;height:${hl}px !important;border:0 !important;background:${pageBg()} !important;transform-origin:0 0 !important;transform:scale(${k}) !important;`;
     frameImg.style.cssText = ""; // clear any landscape-rotation transform
     frameImg.style.setProperty("display", "block", "important");
     const url = FRAMES_BASE + fr.file;
@@ -356,6 +356,10 @@
     const { host, secure } = framedHost();
     placeSafariBar(fr.ox, fr.oy, fr.sw, fr.sh, fr.sf, host, secure, fr.sr);
   }
+
+  // Screen fill behind the framed page. Where the page paints nothing (short body, no html
+  // background) this shows through, so it follows the status-bar theme: dark by default.
+  const pageBg = () => (state.sbLight ? "#0b0b0c" : "#ffffff");
 
   // The framed page's URL as Safari shows it (host:port + path + query, minus protocol/www);
   // the pill ellipsis-truncates it when it runs past the available width.
@@ -402,7 +406,7 @@
     const r = fr.sr || 0;
     const bandColor = sb ? (state.sbLight ? "#0b0b0c" : "#ffffff") : "#000";
     screen.style.cssText = `position:absolute !important;left:${sLeft}px !important;top:${sTop}px !important;width:${sW}px !important;height:${sH}px !important;background:${bandColor} !important;border-radius:${r}px !important;overflow:hidden !important;`;
-    iframe.style.cssText = `position:absolute !important;left:0 !important;top:${zone}px !important;width:${wl + SBW}px !important;height:${hl}px !important;border:0 !important;background:#fff !important;transform-origin:0 0 !important;transform:scale(${k}) !important;`;
+    iframe.style.cssText = `position:absolute !important;left:0 !important;top:${zone}px !important;width:${wl + SBW}px !important;height:${hl}px !important;border:0 !important;background:${pageBg()} !important;transform-origin:0 0 !important;transform:scale(${k}) !important;`;
 
     // the portrait PNG rotated 90deg CW, translated back into the device box
     frameImg.style.cssText = `position:absolute !important;left:0 !important;top:0 !important;width:${fr.fw}px !important;height:${fr.fh}px !important;transform-origin:0 0 !important;transform:translate(${fr.fh}px,0) rotate(90deg) !important;pointer-events:none !important;z-index:6 !important;display:block !important;`;
@@ -443,6 +447,7 @@
     iframe.style.width = w + SBW + "px";
     iframe.style.height = h - zone + "px";
     iframe.style.border = "0";
+    iframe.style.setProperty("background", pageBg(), "important"); // the stylesheet's #fff is !important
     device.style.padding = land ? `${pl}px ${pt}px ${pl}px ${pt}px` : `${pt}px ${pr}px ${pb}px ${pl}px`;
     device.style.borderRadius = d.out + "px";
     device.setAttribute("data-side", d.side ? "1" : "0");
@@ -679,14 +684,24 @@
   async function copyPng() {
     const cap = await capture();
     if (!cap) return;
+    const png = await transparent(cap);
     try {
-      const blob = await toBlob(await transparent(cap), "image/png");
+      if (!navigator.clipboard || !window.isSecureContext) throw new Error("insecure context");
+      const blob = await toBlob(png, "image/png");
       await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-      flash(copyBtn);
-      toast("Image copied - transparent PNG");
-    } catch (_) {
-      toast("Copy failed - click the page once, then try again");
+    } catch (first) {
+      // plain-http pages (LAN dev servers) have no clipboard API at all, and a page that lost
+      // focus refuses writes - the extension's own page (secure, clipboardWrite) does it instead
+      let resp = null;
+      try { resp = await chrome.runtime.sendMessage({ type: "df-clipboard", dataUrl: png.toDataURL("image/png") }); } catch (_) {}
+      if (!resp || !resp.ok) {
+        console.warn("[Device Frame] copy failed:", first && first.message, resp && resp.error);
+        toast("Copy failed - " + ((resp && resp.error) || (first && first.message) || "unknown error"), 4000);
+        return;
+      }
     }
+    flash(copyBtn);
+    toast("Image copied - transparent PNG");
   }
 
   // Share: upload a WebP of the device to bunlongheng.com and hand back a public link.

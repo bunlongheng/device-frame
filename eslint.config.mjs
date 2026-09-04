@@ -5,7 +5,7 @@ const ignore = { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsI
 export default [
   js.configs.recommended,
   {
-    files: ["overlay.js", "background.js"],
+    files: ["overlay.js", "background.js", "copy.js"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "script",

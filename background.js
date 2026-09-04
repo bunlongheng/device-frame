@@ -88,7 +88,7 @@ chrome.action.onClicked.addListener(async (tab) => {
 });
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (!sender.tab) return;
+  if (!sender.tab) return; // copy.html's df-clipboard-done is picked up by its own listener above
 
   // Overlay opened -> flip the toolbar icon to its green "ON" state.
   if (msg && msg.type === "df-open") {
@@ -112,6 +112,32 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       sendResponse(err ? { error: err.message } : { dataUrl });
     });
     return true; // keep the message channel open for the async response
+  }
+
+  // Clipboard fallback for plain-http pages (no navigator.clipboard there): park the PNG in
+  // session storage, open the extension's own copy page (secure origin + clipboardWrite) in a
+  // tiny focused popup, let it write the clipboard, then close it and relay the result.
+  if (msg && msg.type === "df-clipboard") {
+    (async () => {
+      let win = null;
+      try {
+        await chrome.storage.session.set({ dfClip: msg.dataUrl });
+        const result = new Promise((res) => {
+          const onDone = (m) => {
+            if (m && m.type === "df-clipboard-done") { chrome.runtime.onMessage.removeListener(onDone); res(m); }
+          };
+          chrome.runtime.onMessage.addListener(onDone);
+          setTimeout(() => { chrome.runtime.onMessage.removeListener(onDone); res({ error: "clipboard timeout" }); }, 6000);
+        });
+        win = await chrome.windows.create({ url: chrome.runtime.getURL("copy.html"), type: "popup", width: 280, height: 120, focused: true });
+        sendResponse(await result);
+      } catch (e) {
+        sendResponse({ error: (e && e.message) || "clipboard error" });
+      }
+      if (win) { try { await chrome.windows.remove(win.id); } catch (_) {} }
+      try { await chrome.storage.session.remove("dfClip"); } catch (_) {}
+    })();
+    return true;
   }
 
   // The overlay hands us the rendered device image; we POST it to bunlongheng.com from the
